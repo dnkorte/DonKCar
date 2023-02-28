@@ -13,7 +13,7 @@ The <include XXX> links in the OpenSCAD modules must be updated
 to point to the library files.
 
 All plates may be automatically "split" so that they can be printed
-on standard 180x180mm or larger 3d-printers.  The designss are currently 
+on standard 180x180mm or larger 3d-printers.  The designs are currently 
 configured for the following RC chassis:
 
 *[1/10 Tamiya TT02-2 Neo Scorcher (2-post)](https://smile.amazon.com/gp/product/B00DSVF3BY)
