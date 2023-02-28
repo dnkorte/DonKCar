@@ -7,5 +7,10 @@ software/hardware implementations including Raspberry Pi
 and/or Jetson Nano for DonkeyCar implementations, and OpenMV-based
 solutions using Adafruit Metro ESP32-S2 as a main controller.  
 
+The OpenSCAD modules in this project require the use of the 
+lib_robo files which are available in a separate repository here.
+The <include XXX> links in the OpenSCAD modules must be updated
+to point to the library files.
+
 This project is currently very much still under development so use
 or reference at your own risk.  
