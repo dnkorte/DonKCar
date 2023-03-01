@@ -493,8 +493,8 @@ module draw_body_mount_pin() {
 
 module plate_joiner_tube(length=90) {
 	difference() {
-		cube([ 8, length, 8]);
-		translate([ 4, -0.1, 4  ]) rotate([ -90, 0, 0 ]) cylinder( d=4, h=length+0.2 );
+		cube([ 8, length, 10]);
+		translate([ 4, -0.1, 6  ]) rotate([ -90, 0, 0 ]) cylinder( d=4, h=length+0.2 );
 	}
 }
 
