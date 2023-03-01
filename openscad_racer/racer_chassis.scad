@@ -188,7 +188,7 @@ module draw_part() {
     } else if (part_to_print == "Handle") {
     	part_handle(handle_length);
     } else if (part_to_print == "Battery Box Lid") {
-    	draw_battbox_lid("pegs");
+    	draw_battbox_lid("pins");
     } else if (part_to_print == "Power Hub") {
     	part_hanging_power_hub();
     } else if (part_to_print == "Fuse Holder Lid") {
