@@ -37,7 +37,7 @@
  * SOFTWARE.
  */
 
-part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall",  "test" ]
+part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Power Hub with ServoConverter", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall",  "test" ]
 
 chassis = 0; // [0:TT02-2, 1:TT02-2 Extended, 2:TT02-4, 3:Holyton, 4:Hosim, 5:Exceed, 6:Custom ]
 
@@ -119,7 +119,7 @@ wirehole_locs =       [ [60,-38],    [60,-42],    [60,-36],    [60,-36],    [60,
 // location where top plate is split for 3d printing convenience
 // 0 means exact middle of plate, + is number of mm FORWARD of middle, - is mm BEHIND middle
 split_locs = 		  [ -10,        -13,         -3,          -5,          16,         -4,  	   -5 ];
-joiner_centers = 	  [ 0,          -0,           3,           2,          8,           2, 		    2 ];
+joiner_centers = 	  [ 0,          -0,           3,           2,          8,           4, 		    2 ];
 
 // for camera / arch info, paramters are (y location of camera plate center), (length of handle)
 // note that the arch center is towards the back of the chassis, which is why the y location is (negative)
@@ -191,6 +191,8 @@ module draw_part() {
     	draw_battbox_lid("pins");
     } else if (part_to_print == "Power Hub") {
     	part_hanging_power_hub();
+    } else if (part_to_print == "Power Hub with ServoConverter") {
+    	part_hanging_power_hub_servo();
     } else if (part_to_print == "Fuse Holder Lid") {
     	fuse_holder_lid();
     } else if (part_to_print == "Thumbnut 12") {
