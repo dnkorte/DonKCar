@@ -104,8 +104,12 @@ include <../../lib_robo/components_robo_misc.scad>;
  */
 
 module box() {
-    nunchuk_window_wide = 27;
-    nunchuk_window_tall = 22;   // should raise it 5 above box bottom
+    nunchuk_window_wide = 27;   // was 27
+    nunchuk_window_tall = 20;   // should raise it 5 above box bottom (was 22)
+
+    usb_window_wide = 14;
+    usb_window_tall = 8;
+    usb_window_height = 15;
 
     difference() {
         union() {
@@ -128,7 +132,7 @@ module box() {
 
             translate([ (plate_x/2)-13, -35, plate_thick-1 ]) rotate([ 0, 0, 90 ]) part_nunchuk();
             
-            translate([ (plate_x/2)-1.5, -34, 1 ]) rotate([ 90, 90, 90 ]) rotate([ 0, 0, 90 ]) 
+            translate([ (plate_x/2)-1, -34, 1 ]) rotate([ 90, 90, 90 ]) rotate([ 0, 0, 90 ]) 
                 linear_extrude(2) text("Notch", size=6,  halign="center", font = "Liberation Sans:style=Bold");  
 
         }
@@ -148,11 +152,15 @@ module box() {
          */
         translate([ 0, -36, -0.1 ]) component_beltclip_mount();
         translate([ -12, 34, plate_thick ]) rotate([ 0, 0, 90 ]) component_battbox_lipo_500_flat("holes");
-        translate([ (box_width/2)+0.1, 30, box_height/2 ]) rotate([ 0, 90, 180 ]) component_mini_toggle_switch("holes");
+        //translate([ (box_width/2)+0.1, 30, box_height/2 ]) rotate([ 0, 90, 180 ]) component_mini_toggle_switch("holes");
 
         // access hole for nunchuk connector
-        translate([ (plate_x/2)+0.1, -35, 5 + (27/2) ]) rotate([ 0, -90, 0 ]) 
+        translate([ (plate_x/2)+0.1, -35, 4.2 + plate_thick + (nunchuk_window_tall/2) ]) rotate([ 0, -90, 0 ]) 
             roundedbox( nunchuk_window_tall, nunchuk_window_wide, 2, body_wall_thickness+0.2); 
+
+        // access hole for usb charge/programming connector
+        translate([ (plate_x/2)+0.1, 0, usb_window_height ]) rotate([ 0, -90, 0 ]) 
+            roundedbox( usb_window_tall, usb_window_wide, 2, body_wall_thickness+0.2); 
     }
 }
 
@@ -173,7 +181,7 @@ module lid() {
              * here enter all the parts that are added to the lid
              ************************************************************************
              */
-            translate([ 0, 0, plate_thick ]) component_smallmint_protoboard("adds");
+            translate([ -7, 0, plate_thick ]) component_smallmint_protoboard("adds");
         }
         
         /*
@@ -181,7 +189,7 @@ module lid() {
          * here enter all the parts that are removed from the lid
          ************************************************************************
          */
-        translate([ 0, 0, plate_thick ]) component_smallmint_protoboard("holes");
+        translate([ -7, 0, plate_thick ]) component_smallmint_protoboard("holes");
         translate([ -10, -(box_width/2)+25, 0 ])  component_oled_bezel("holes");    // make a hole for bezel to fit in
         translate([ -20, 35, -0.1 ]) component_12mm_button("holes");
         translate([  15, 35, -0.1 ])  component_boat_rocker_switch("holes");
@@ -198,14 +206,14 @@ module part_nunchuk() {
     nunchuk_mount_sep_x = 20;
     nunchuk_mount_sep_y = 13;
 
-    roundedbox( nunchuk_plate_x, nunchuk_plate_y, 1, mountplate_thick );
+    roundedbox( nunchuk_plate_x, nunchuk_plate_y, 1, mountplate_thick+2 );
 
-    translate([ -nunchuk_mount_sep_x/2, -nunchuk_mount_sep_y/2, mountplate_thick ]) TI25_mount();
-    translate([ -nunchuk_mount_sep_x/2, nunchuk_mount_sep_y/2, mountplate_thick ]) TI25_mount();
-    translate([ nunchuk_mount_sep_x/2, -nunchuk_mount_sep_y/2, mountplate_thick ]) TI25_mount();
-    translate([ nunchuk_mount_sep_x/2, nunchuk_mount_sep_y/2, mountplate_thick ]) TI25_mount();
+    translate([ -nunchuk_mount_sep_x/2, -nunchuk_mount_sep_y/2, mountplate_thick+2 ]) TI25_mount();
+    translate([ -nunchuk_mount_sep_x/2, nunchuk_mount_sep_y/2, mountplate_thick+2 ]) TI25_mount();
+    translate([ nunchuk_mount_sep_x/2, -nunchuk_mount_sep_y/2, mountplate_thick+2 ]) TI25_mount();
+    translate([ nunchuk_mount_sep_x/2, nunchuk_mount_sep_y/2, mountplate_thick+2 ]) TI25_mount();
 
-    translate([ 0, -3, mountplate_thick ])  
+    translate([ 0, -3, mountplate_thick+2 ])  
         linear_extrude(1) text("NC", size=6, halign="center");
 }
 

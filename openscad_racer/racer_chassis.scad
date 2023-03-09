@@ -37,7 +37,7 @@
  * SOFTWARE.
  */
 
-part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Power Hub with ServoConverter", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall",  "test" ]
+part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Power Hub with ServoConverter", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall", "Thumbnut 18 super",  "test" ]
 
 chassis = 0; // [0:TT02-2, 1:TT02-2 Extended, 2:TT02-4, 3:Holyton, 4:Hosim, 5:Exceed, 6:Custom ]
 
@@ -203,6 +203,8 @@ module draw_part() {
     	part_thumbnut(18, 4);
     } else if (part_to_print == "Thumbnut 18 tall") {
     	part_thumbnut(18, 4, hub_thickness=7);
+    } else if (part_to_print == "Thumbnut 18 super") {
+    	part_thumbnut(18, 4, 9);
     } else if (part_to_print == "Mount Pillar (car-to-plate; TT02 single-post design)") {
     	part_tt02mountbracket_pillar();
     } else if (part_to_print == "Show Assembly") {
