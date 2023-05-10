@@ -32,7 +32,7 @@
  * SOFTWARE.
  */
 
-part_to_print="backplate";  // [ "box", "lid", "backplate", "beltclip", "battbox_lid", "test" ]
+part_to_print="backplate";  // [ "box", "lid", "backplate", "backplate AA", "beltclip", "battbox_lid", "test" ]
 
 draw_part();
 
@@ -41,6 +41,8 @@ module draw_part() {
     
     if (part_to_print == "backplate") {
         part_backplate();
+    } else if (part_to_print == "backplate AA") {
+        part_backplate_AA();
     } else if (part_to_print == "beltclip") {
         part_beltclip();
     } else if (part_to_print == "battbox_lid") {
@@ -275,6 +277,14 @@ module component_powerswitch() {
     }
 }
 
+module component_switches() {
+    difference() {
+        translate([ -15, -10, 0 ]) cube([ 50, 24, 5]);
+        rotate([ 0, 0, 90 ]) translate([ -1, 0, -0.1 ]) component_mini_toggle_switch("holes");      // power toggle
+        translate([ 22, -1, -0.1 ]) cylinder(d=10.5, h=5.2);                           // pushbutton
+    }
+}
+
 module part_backplate() {
     difference() {
         union() {
@@ -295,6 +305,38 @@ module part_backplate() {
         }
         translate([ 0, -42, -0.1 ]) component_beltclip_mount();
     }
+}
+
+
+plate_AA_x = 85;
+plate_AA_y = 140;
+plate_AA_battmount_sep = 30;
+
+module part_backplate_AA() {
+    difference() {
+        union() {
+            difference() {
+                union() {
+                    roundedbox( plate_AA_x, plate_AA_y, corner_radius, plate_thick );
+                    translate([ 0, -10, plate_thick ]) component_smallmint_protoboard("adds");
+                }
+                translate([ 0, -10, plate_thick ]) component_smallmint_protoboard("holes");
+
+                // holes for mounting batt -- must use M2 panhead bolt (so head is small enough to not interfere with batt)
+                translate([ -12, 44-(plate_AA_battmount_sep/2), -0.1 ]) cylinder( d=TI20_through_hole_diameter, h=5.2);
+                translate([ -12, 44+(plate_AA_battmount_sep/2), -0.1 ]) cylinder( d=TI20_through_hole_diameter, h=5.2);
+            }
+            translate([ (plate_AA_x/2)-14, -50, plate_thick-1 ]) rotate([ 0, 0, 90 ]) part_nunchuk();
+            translate([ (plate_AA_x/2)-4, -10, plate_thick ])
+                rotate([ 0, 0, 90 ]) linear_extrude(1) text("<Notch Down", size=6, halign="center");
+
+            translate([ -15, -52, plate_thick -1 ]) rotate([ 0, 0, 0 ]) part_128x32_oled();
+
+            translate([ (plate_AA_x/2), 30, 16 ]) rotate([ -90, 0, 90 ]) component_switches();
+        }
+        translate([ 0, -52, -0.1 ]) component_beltclip_mount();
+    }
+    //translate([ (-58/2)-12, 20, 4 ]) color([ 1, 0, 0 ]) cube([ 58, 48, 15 ]);
 }
 
 

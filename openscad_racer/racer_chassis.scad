@@ -37,7 +37,7 @@
  * SOFTWARE.
  */
 
-part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Power Hub with ServoConverter", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall", "Thumbnut 18 super",  "test" ]
+part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall", "Thumbnut 18 super",  "test" ]
 
 chassis = 0; // [0:TT02-2, 1:TT02-2 Extended, 2:TT02-4, 3:Holyton, 4:Hosim, 5:Exceed, 6:Custom ]
 
@@ -191,8 +191,6 @@ module draw_part() {
     	draw_battbox_lid("pins");
     } else if (part_to_print == "Power Hub") {
     	part_hanging_power_hub();
-    } else if (part_to_print == "Power Hub with ServoConverter") {
-    	part_hanging_power_hub_servo();
     } else if (part_to_print == "Fuse Holder Lid") {
     	fuse_holder_lid();
     } else if (part_to_print == "Thumbnut 12") {
@@ -213,16 +211,17 @@ module draw_part() {
     	//part_hanging_power_hub();
     	//component_arduino("adds");
     	//part_back_arch();
-		cd1 = 10;
-		cd2 = 15;
-    	difference() {
-    		roundedbox(40, 40, 3, 4);
-			translate([ -10, 0, 2 ]) cylinder(d1=cd1, d2=cd2, h=2.1);
-			translate([  10, 0, 3 ]) cylinder(d1=cd1, d2=cd2, h=1.1);
+		//cd1 = 10;
+		//cd2 = 15;
+    	//difference() {
+    	//	roundedbox(40, 40, 3, 4);
+		//	translate([ -10, 0, 2 ]) cylinder(d1=cd1, d2=cd2, h=2.1);
+		//	translate([  10, 0, 3 ]) cylinder(d1=cd1, d2=cd2, h=1.1);
 
-			translate([ -10, 0, -0.1 ]) cylinder(d=6, h=5); // was 3.5
-			translate([  10, 0, -0.1 ]) cylinder(d=6, h=5); // was 3.5
-    	}
+		//	translate([ -10, 0, -0.1 ]) cylinder(d=6, h=5); // was 3.5
+		//	translate([  10, 0, -0.1 ]) cylinder(d=6, h=5); // was 3.5
+    	//}
+		draw_battbox_urgenex2000("pins");
     }
 }
 
@@ -241,10 +240,10 @@ module show_assembly() {
 	}
 
 	if (pwrhub_side == "right") {
-		translate([ right_edge, 0, -pwr_panel_tall ]) rotate([ 0, 0, 90 ]) color([ 0.4, 0.4, 0.4 ]) part_hanging_power_hub();
+		translate([ right_edge, 0, -pwr_panel_tall_dualfuse ]) rotate([ 0, 0, 90 ]) color([ 0.4, 0.4, 0.4 ]) part_hanging_power_hub_2fuses();
 	}
 	if (pwrhub_side == "left") {
-		translate([ left_edge, 0, -pwr_panel_tall ]) rotate([ 0, 0, -90 ]) color([ 0.4, 0.4, 0.4 ]) part_hanging_power_hub();
+		translate([ left_edge, 0, -pwr_panel_tall_dualfuse ]) rotate([ 0, 0, -90 ]) color([ 0.4, 0.4, 0.4 ]) part_hanging_power_hub_2fuses();
 	}
 	if ( (chassis == 0) || (chassis == 1) ) {
 		translate([ 0, (pillars_fb_sep[chassis]/2)-(tt02mountbracket_thick/2), -tt02mountbracket_height ]) 
