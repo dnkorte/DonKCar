@@ -36,3 +36,7 @@ Note that these are all readily available chassis in early 2023
 <h3 align="center">
 	<img width="853" src="https://github.com/dnkorte/DonKCar/blob/main/images/openscad_screenshot_chassis.jpg" alt="sample openscad screen"><br>
 </h3>
+
+If using a standard DonkeyCar software package on either a Raspberry Pi or Jetson Nano, none of the Arduino code packages are needed.  
+
+If using the Arduino model then you will use an Adafruit Metro S2 board as the main controller, with a shield as indicated in the "hardware_printed_circuit_boards" folder (you can fabricate the boards, or build an equivalent on a breadboard).  In this configuration a remote controller using Adafruit QTPy and an Adafruit Nunchuk interface is packaged onto a belt-mounted panel, and the user controls the racer (and can drive it manuallY) using a standard Nunchuk controller.  In this configuration, an OpenMV camera is used for vision, although at the time of this writing that part is not yet implemented.  
