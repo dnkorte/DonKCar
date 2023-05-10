@@ -58,6 +58,8 @@ tt02mountbracket_height = 40; // [ 35, 40, 45, 50 ]
 pwrhub_side = "right"; // ["right", "left"]
 switch = "Toggle Switch (notch up)"; // [ "Toggle Switch (notch up)", "Toggle Switch (notch down)", "Boat Rocker Switch"]
 
+wantPCA9685 = "only Pi/Nano"; // ["only Pi/Nano", "all configurations"]
+
 wantLogo = "split"; // [ "arch", "split", "none" ]
 // note if you change carident you must CLICK out of box; the ENTER key does not work
 carIdent = "racer3";
@@ -271,7 +273,6 @@ module show_assembly() {
 	translate([ (plate_x/2) - 8, -50+joiner_centers[chassis], plate_thick ]) color([ 0.2, 1, 0.2, 0.3 ]) plate_joiner_tube(90);
 }
  
-
 module part_top_plate() {
     $fn = 36;
 
@@ -283,7 +284,13 @@ module part_top_plate() {
 				translate([ metro_locs[ chassis][0], metro_locs[ chassis][1], plate_thick ]) 
 					rotate([ 0, 0, 180 ])  
 					color([ 0.8, 0.7, 0 ]) 
-					component_arduino("adds"); // general electronics			
+					component_arduino("adds"); // general electronics	
+				if (wantPCA9685 == "all configurations") {
+					translate([ servo_locs[ chassis][0], servo_locs[ chassis][1], plate_thick ]) 
+						rotate([ 0, 0, 90 ]) 
+						color([ 0.8, 0.7, 0 ]) 
+						component_ada_servo_controller("adds");	
+				}	
 			}
 			if (baseconfig == "Donkey RPi3b") {
 				translate([ rpi3b_locs[ chassis][0], rpi3b_locs[ chassis][1], plate_thick ]) 
@@ -363,6 +370,11 @@ module part_top_plate() {
 			translate([ metro_locs[ chassis][0], metro_locs[ chassis][1], plate_thick ]) 
 				rotate([ 0, 0, 180 ]) 
 				component_arduino("holes"); 	
+			if (wantPCA9685 == "all configurations") {
+				translate([ servo_locs[ chassis][0], servo_locs[ chassis][1], plate_thick ]) 
+					rotate([ 0, 0, 90 ]) 
+					component_ada_servo_controller("holes");
+			}
 		}
 		if (baseconfig == "Donkey RPi3b") {
 			translate([ rpi3b_locs[ chassis][0], rpi3b_locs[ chassis][1], plate_thick ]) 
