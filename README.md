@@ -1,6 +1,3 @@
-**This project is currently very much still under development so use
-or reference at your own risk.**
-
 This project holds files related to the DonKCar project, which is an
 implementation of autonomous RC-sized racer.  The project includes
 OpenSCAD code to generate 3d-printable chassis that fit a variety
@@ -37,6 +34,16 @@ Note that these are all readily available chassis in early 2023
 	<img width="853" src="https://github.com/dnkorte/DonKCar/blob/main/images/openscad_screenshot_chassis.jpg" alt="sample openscad screen"><br>
 </h3>
 
-If using a standard DonkeyCar software package on either a Raspberry Pi or Jetson Nano, none of the Arduino code packages are needed.  
+If using a standard DonkeyCar software package on either a Raspberry Pi or Jetson Nano, none of the Arduino code packages are needed, and the OpenSCAD models are very stable and complete for those configurations.
 
-If using the Arduino model then you will use an Adafruit Metro S2 board as the main controller, with a shield as indicated in the "hardware_printed_circuit_boards" folder (you can fabricate the boards, or build an equivalent on a breadboard).  In this configuration a remote controller using Adafruit QTPy and an Adafruit Nunchuk interface is packaged onto a belt-mounted panel, and the user controls the racer (and can drive it manuallY) using a standard Nunchuk controller.  In this configuration, an OpenMV camera is used for vision, although at the time of this writing that part is not yet implemented.  
+## ESP32-S2 + OpenMV Configuration
+
+This project has an as-yet still under development option  that uses an OpenMV camera for the vision and line-tracking portions and uses an ESP32-S2 (Adafruit Metro ESP32-S2 board) as a vehicle / platform main controller.  At the current time, the manual functions are very complete and functional -- allowing manual driving of the vehicle using a belt-mounted remote controller, and allowing for setup/configuration using a self-hosted web menu system that works with a phone or laptop (straight-up web interface no software installation on the phone or laptop).  The onboard ESP32-S2 system incorporates a 240x240 TFT display for detailed userfeedback, and a 24 element NeoPixel strip that provides runtime feedback for users "at a distance".  
+
+The belt-mounted remote controller uses an Adafruit QTPy ESP32-S2 with a small OLED display connected to a Wii Nunchuk controller that provides driving commands.   The remote communicates with the racer using ESP-NOW protocol which means that all control is totally independent of local networks.  
+
+All of the above works at the current time, with the software as included here.  
+
+The autonomous driving functions using the OpenMV camera are still under development, but are modelled on the OpenMV line following protocol, modified to communicate to the main controller over an i2c connection.  The racer main controller handles the actual throttle and steering servo control, accepting path commands provided by the OpenMV software.  
+
+**Note that the ESP32-S2 / OpenMV configuration is currently very much still under development so use or reference at your own risk.**
