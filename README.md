@@ -17,9 +17,9 @@ All plates may be automatically "split" so that they can be printed
 on standard 180x180mm or larger 3d-printers.  The designs are currently 
 configured for the following RC chassis:
 
-*[1/10 Tamiya TT02-2 Neo Scorcher (2-post)](https://smile.amazon.com/gp/product/B00DSVF3BY)
+*[1/10 Tamiya TT02B Neo Scorcher (2-post)](https://smile.amazon.com/gp/product/B00DSVF3BY)
 
-*[1/10 Tamiya TT02-4 Toyota GR 86  (4-post)](https://www.amazon.com/TAMIYA-10-Toyota-TT-02-TAM58694/dp/B09KRR5GKS)
+*[1/10 Tamiya TT02 Toyota GR 86  (4-post)](https://www.amazon.com/TAMIYA-10-Toyota-TT-02-TAM58694/dp/B09KRR5GKS)
 
 *[Hosim 1/12 Monster Truck](https://www.amazon.com/Hosim-9155-Speed-Monster-Trucks/dp/B07SRTHB3L?th=1) 
 
@@ -38,9 +38,9 @@ If using a standard DonkeyCar software package on either a Raspberry Pi or Jetso
 
 ## ESP32-S2 + OpenMV Configuration
 
-This project has an as-yet still under development option  that uses an OpenMV camera for the vision and line-tracking portions and uses an ESP32-S2 (Adafruit Metro ESP32-S2 board) as a vehicle / platform main controller.  At the current time, the manual functions are very complete and functional -- allowing manual driving of the vehicle using a belt-mounted remote controller, and allowing for setup/configuration using a self-hosted web menu system that works with a phone or laptop (straight-up web interface no software installation on the phone or laptop).  The onboard ESP32-S2 system incorporates a 240x240 TFT display for detailed userfeedback, and a 24 element NeoPixel strip that provides runtime feedback for users "at a distance".  
+This project has an as-yet still under development option  that uses an OpenMV camera for the vision and line-tracking portions and uses an ESP32-S2 (Adafruit Metro ESP32-S2 board) as a vehicle / platform main controller.  At the current time, the manual functions are very complete and functional -- allowing manual driving of the vehicle using a remote controller (clips to driver's belt), and allowing for setup/configuration using a self-hosted web menu system that works with a phone or laptop (straight-up web interface no software installation on the phone or laptop).  The onboard ESP32-S2 system incorporates a 240x240 TFT display for detailed user feedback, and a 24 element NeoPixel strip that provides runtime feedback for users "at a distance".  
 
-The belt-mounted remote controller uses an Adafruit QTPy ESP32-S2 with a small OLED display connected to a Wii Nunchuk controller that provides driving commands.   The remote communicates with the racer using ESP-NOW protocol which means that all control is totally independent of local networks.  
+The belt-mounted remote controller uses an Adafruit QTPy ESP32-S2 with a small OLED display connected to a Wii Nunchuk controller that provides driving commands. An optional variant uses an Adafruit Reverse TFT Feather -- this has a larger display but is slightly more costly).  The remote communicates with the racer using ESP-NOW protocol which means that all control is totally independent of local networks.  
 
 All of the above works at the current time, with the software as included here.  
 
