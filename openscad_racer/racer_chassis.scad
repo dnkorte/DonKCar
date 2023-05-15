@@ -192,7 +192,7 @@ module draw_part() {
     } else if (part_to_print == "Battery Box Lid") {
     	draw_battbox_lid("pins");
     } else if (part_to_print == "Power Hub") {
-    	part_hanging_power_hub();
+    	part_hanging_power_hub_2fuses();
     } else if (part_to_print == "Fuse Holder Lid") {
     	fuse_holder_lid();
     } else if (part_to_print == "Thumbnut 12") {

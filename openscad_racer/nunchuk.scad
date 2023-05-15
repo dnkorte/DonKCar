@@ -32,7 +32,7 @@
  * SOFTWARE.
  */
 
-part_to_print="backplate";  // [ "box", "lid", "backplate", "backplate AA", "beltclip", "battbox_lid", "test" ]
+part_to_print="backplate";  // [ "box", "lid", "box_for_feather", "lid for feather", "backplate", "backplate AA", "beltclip", "battbox_lid", "test" ]
 
 draw_part();
 
@@ -49,8 +49,12 @@ module draw_part() {
         component_battbox_lipo_500_flat_lid();
     } else if (part_to_print == "box") {
         box();
+    } else if (part_to_print == "box_for_feather") {
+        box_feather();
     } else if (part_to_print == "lid") {
         lid();
+    } else if (part_to_print == "lid for feather") {
+        lid_feather();
     } else if (part_to_print == "test") {
         //difference() {
         //    roundedbox(50, 30, 2, 2.4);
@@ -63,8 +67,13 @@ module draw_part() {
 
 box_length = 80;
 box_width = 120;
-box_height = 35;
+box_height = 37;
 box_corner_radius = 8;
+
+feather_box_length = 80;
+feather_box_width = 85;
+feather_plate_width = 120;
+feather_box_height = 35;
 
 plate_thick = 3;
 wall_thick = 5;
@@ -96,6 +105,79 @@ include <../../lib_robo/components_power_fuses_connectors.scad>;
 include <../../lib_robo/simple_box_and_lid.scad>
 include <../../lib_robo/components_robo_misc.scad>; 
 
+/*
+ * *****************************************************************
+ * mainl box-building code for drawing parts
+ * most standard components are already handled here, by means
+ * of configuration parameters, however custom parts may be
+ * added by adding appropriate code to these modules
+ * *****************************************************************
+ */
+
+module box_feather() {
+    nunchuk_window_wide = 27;   // was 27
+    nunchuk_window_tall = 20;   // should raise it 5 above box bottom (was 22)
+
+    usb_window_wide = 14;
+    usb_window_tall = 8;
+    usb_window_height = 15;
+
+    difference() {
+        union() {
+            // the basic hollow box
+            difference() {
+                roundedbox(feather_box_length, feather_box_width, box_corner_radius, box_height);
+                translate([0, 0, body_bottom_thickness])  
+                    roundedbox((feather_box_length - 2*body_wall_thickness), 
+                           (feather_box_width - 2*body_wall_thickness), 
+                           box_corner_inner_radius, 
+                           (box_height - body_wall_thickness+1));
+            }
+
+            /*
+             ************************************************************************
+             * here enter all the parts that are added to the box
+             ************************************************************************
+             */
+            translate([  0, -(feather_plate_width-feather_box_width)/2, 0 ]) roundedbox( box_length, feather_plate_width, box_corner_radius, plate_thick);
+
+            translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("adds");
+
+            translate([ (plate_x/2)-13, 20, plate_thick-1 ]) rotate([ 0, 0, 90 ]) part_nunchuk();
+            
+            translate([ (plate_x/2)-1, 20, 1 ]) rotate([ 90, 90, 90 ]) rotate([ 0, 0, 90 ]) 
+                linear_extrude(2) text("Notch", size=6,  halign="center", font = "Liberation Sans:style=Bold");  
+
+            translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="adds", mount_height=2);
+
+        }
+
+        // create mounting holes along y side (by removal...)
+        translate([-(box_length/2)-0.1, 0, (box_height - mount_center_offset_from_boxtop)]) rotate([0,90,0])  
+              cylinder(h=box_length+0.2, r=screwhole_radius_M30_passthru);
+      
+        // create mounting holes along x side
+        translate([0, -(box_width/2)-0.1, (box_height - mount_center_offset_from_boxtop)]) rotate([0,90,90])  
+              cylinder(h=box_width+0.2, r=screwhole_radius_M30_passthru);
+
+        /*
+         ************************************************************************
+         * here enter all the parts that are removed from the box
+         ************************************************************************
+         */
+        translate([ 0, -61, -0.1 ]) component_beltclip_mount();
+        translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("holes");
+        translate([ (box_length/2)+0.1, -20, box_height/2 ]) rotate([ 90, 0, 0 ]) rotate([ 0, 90, 180 ]) component_mini_toggle_switch("holes");
+
+        translate([ 0, -(feather_box_length/2)+0, plate_thick+15 ]) rotate([ 90, 0, 0 ]) roundedbox( 30, 16, 3, 6);
+        translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="holes", mount_height=2);
+
+        // access hole for nunchuk connector
+        translate([ (plate_x/2)+0.1, 20, 4.2 + plate_thick + (nunchuk_window_tall/2) ]) rotate([ 0, -90, 0 ]) 
+            roundedbox( nunchuk_window_tall, nunchuk_window_wide, 2, body_wall_thickness+0.2); 
+
+    }
+}
 /*
  * *****************************************************************
  * mainl box-building code for drawing parts
@@ -199,6 +281,30 @@ module lid() {
 
     // add on bezel for OLED display (must be added AFTER its big acceptance hole)
     translate([ -10, -(box_width/2)+25, 0 ])  component_oled_bezel("adds");
+}
+
+module lid_feather() {   
+    difference() {
+
+        union() {
+            roundedbox(feather_box_length, feather_box_width, box_corner_radius, lid_thickness);
+            translate([0, 0, lid_thickness]) lip(feather_box_length, feather_box_width);  
+
+            /*
+             ************************************************************************
+             * here enter all the parts that are added to the lid
+             ************************************************************************
+             */
+            // nothing to add
+        }
+        
+        /*
+         ************************************************************************
+         * here enter all the parts that are removed from the lid
+         ************************************************************************
+         */
+        // nothing to remove
+    }
 }
 
 
