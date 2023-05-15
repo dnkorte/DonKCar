@@ -39,7 +39,7 @@
 
 part_to_print="Show Assembly";  // [ "Top Plate", "Top Plate (front half)", "Top Plate (back half)", "Show Assembly", "RPi Cam Pillar (no handle)", "RPi Cam Pillar (with handle)", "OpenMV Cam Pillar (no handle)", "OpenMV Cam Pillar (with handle)", "Back Arch", "Back Arch w/TFT", "NeoPixel Bezel 3", "Handle", "Mount Pillar (car-to-plate; TT02 single-post design)", "Power Hub", "Fuse Holder Lid", "Battery Box Lid", "Thumbnut 12", "Thumbnut 15", "Thumbnut 18", "Thumbnut 18 tall", "Thumbnut 18 super",  "test" ]
 
-chassis = 0; // [0:TT02-2, 1:TT02-2 Extended, 2:TT02-4, 3:Holyton, 4:Hosim, 5:Exceed, 6:Custom ]
+chassis = 0; // [0:TT02B-2, 1:TT02B-2 Extended, 2:TT02-4, 3:Holyton, 4:Hosim, 5:Exceed, 6:Custom ]
 
 baseconfig = "metro"; // ["metro", "Donkey RPi3b", "Donkey Jetson Nano"]
 aux_battery = "none"; // ["none", "anker6700", "urgenex2000", "NiMH 7.2v 2200 mAH" ]

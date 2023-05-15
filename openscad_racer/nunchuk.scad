@@ -141,14 +141,15 @@ module box_feather() {
              */
             translate([  0, -(feather_plate_width-feather_box_width)/2, 0 ]) roundedbox( box_length, feather_plate_width, box_corner_radius, plate_thick);
 
-            translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("adds");
+            //translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("adds");
+            translate([ -10, 5, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_1200_flat("adds");
 
             translate([ (plate_x/2)-13, 20, plate_thick-1 ]) rotate([ 0, 0, 90 ]) part_nunchuk();
             
             translate([ (plate_x/2)-1, 20, 1 ]) rotate([ 90, 90, 90 ]) rotate([ 0, 0, 90 ]) 
                 linear_extrude(2) text("Notch", size=6,  halign="center", font = "Liberation Sans:style=Bold");  
 
-            translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="adds", mount_height=2);
+            translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="adds", mount_height=7);
 
         }
 
@@ -166,11 +167,12 @@ module box_feather() {
          ************************************************************************
          */
         translate([ 0, -61, -0.1 ]) component_beltclip_mount();
-        translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("holes");
+        //translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("holes");
+        translate([ -10, 5, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_1200_flat("holes");
         translate([ (box_length/2)+0.1, -20, box_height/2 ]) rotate([ 90, 0, 0 ]) rotate([ 0, 90, 180 ]) component_mini_toggle_switch("holes");
 
         translate([ 0, -(feather_box_length/2)+0, plate_thick+15 ]) rotate([ 90, 0, 0 ]) roundedbox( 30, 16, 3, 6);
-        translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="holes", mount_height=2);
+        translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="holes", mount_height=7);
 
         // access hole for nunchuk connector
         translate([ (plate_x/2)+0.1, 20, 4.2 + plate_thick + (nunchuk_window_tall/2) ]) rotate([ 0, -90, 0 ]) 
