@@ -156,9 +156,9 @@ extern Config config;
   #define BAUD_RATE_SERCOM2 9600
   
   // may set pins to 0 if sercom1 is not used, else to pin numbers
-  #define PIN_RX_SERCOM1 0
-  #define PIN_TX_SERCOM1 0
-  #define BAUD_RATE_SERCOM1 9600
+  #define PIN_RX_SERCOM1 9
+  #define PIN_TX_SERCOM1 10
+  #define BAUD_RATE_SERCOM1 57600
 
   // note A0 and A1 are on ADC2 and cannot be used when wifi/bluetooth is used
   // A2-A5 are on ADC1 and can be freely used

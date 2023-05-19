@@ -35,6 +35,7 @@
 #include "mode_mgr.h"
 #include "drivetrain.h"
 #include "nunchuk.h"
+#include "serial_com_esp32.h"
 
 /* 
  *  Note later setup motors.h and screen.h as standard arduino libraries so that
@@ -48,9 +49,10 @@
 
 long nextBattDispDue_E, nextBattDispDue_M;
 long nextHeartbeatCheckDue, nextMenuCheckDue;
+long nextCam1QueryDue;
 
 long nextTestDue;
-int testangle;
+int testangle, testFlavor;
 
 int  last_joyXR, last_joyYR, last_joyXL, last_joy_YL;
 float batt_volts_E, cell_volts_E;   // batt for electronics
@@ -92,9 +94,14 @@ void setup() {
   num_red_M = 0;
   
   nextBattDispDue_E = millis() + 50;
-  nextBattDispDue_M = millis() + 6050;
+  nextBattDispDue_M = millis() + 3050;
+  nextCam1QueryDue = millis() + 315;
   nextHeartbeatCheckDue = 0;
   nextMenuCheckDue = 0;
+  
+  nextTestDue = millis() + 230;
+  testFlavor = 0;   // currently no camera polls
+  sercom1_init();
   
   analogReadResolution(12);
   mode_set_mode(MODE_IDLE); 
@@ -254,6 +261,25 @@ void loop() {
     mode_check_menu_timeout();   // check for menu timeouts
   }
 
+  if (current_time > nextCam1QueryDue)  {
+    if (testFlavor == 1) {
+      for (int ii=0; ii<10; ii++) {
+        sercom1_sendchar('c');
+      }
+    }
+    nextCam1QueryDue = millis() + 250;
+  }
+  
+  if (current_time > nextTestDue) {
+    if (testFlavor == 0) {
+      testFlavor = 1;
+      screen_centerText(ROW_STAT3, "Sending Cam Test", COLOR_GREEN );
+    } else {
+      testFlavor = 0;
+      screen_centerText(ROW_STAT3, "Not Sending Cam", COLOR_YELLOW );
+    }
+    nextTestDue = millis() + 10000;
+  }
 
   // FOR TESTING   TODO **********************************************************
   //if (current_time > nextTestDue) {
