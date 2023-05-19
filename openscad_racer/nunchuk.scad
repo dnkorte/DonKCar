@@ -173,7 +173,7 @@ module box_feather(batteryFlavor = "1200") {
          * here enter all the parts that are removed from the box
          ************************************************************************
          */
-        translate([ 0, -61, -0.1 ]) component_beltclip_mount();
+        translate([ 0, -63, -0.1 ]) component_beltclip_mount();
 
 
         if (batteryFlavor == "1200") {
@@ -182,7 +182,7 @@ module box_feather(batteryFlavor = "1200") {
             translate([ -10, 0, plate_thick ]) rotate([ 0, 0, 0 ]) component_battbox_lipo_500_flat("holes");
         }
 
-        translate([ (box_length/2)+0.1, -20, box_height/2 ]) rotate([ 90, 0, 0 ]) rotate([ 0, 90, 180 ]) component_mini_toggle_switch("holes");
+        translate([ (box_length/2)+0.1, -20, box_height/2 ]) rotate([ 90, 180, 0 ]) rotate([ 0, 90, 180 ]) component_mini_toggle_switch("holes");
 
         translate([ 0, -(feather_box_length/2)+0, plate_thick+15 ]) rotate([ 90, 0, 0 ]) roundedbox( 30, 16, 3, 6);
         translate([ 0, -(feather_box_length/2)-1.5, plate_thick+15 ]) rotate([ 90, 180, 0 ]) component_reverse_feather(mode="holes", mount_height=7);
