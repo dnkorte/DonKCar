@@ -66,8 +66,8 @@
 */
 
 // Replace the next variables with your SSID/Password combination
-//char ssid[] = "jalapeno";
-//char password[] = "greenergrass";
+//char ssid[] = "your_ssid_here";
+//char password[] = "your_pw_here";
 
 // MAC Address of responder - this is for (red) racer3
 //uint8_t broadcastAddress[] = {0x7c, 0xdf, 0xa1, 0x44, 0x41, 0x76};
