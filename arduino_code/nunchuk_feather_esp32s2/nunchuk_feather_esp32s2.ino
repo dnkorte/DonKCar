@@ -35,6 +35,13 @@
  *  @license    LGPLv3 - Copyright (c) 2018 David Madison
  *  https://github.com/dmadison/NintendoExtensionCtrl  
  *  
+ *  Note this works with either the literal Woo "Nunchuk" device or the Wii Classic Controller
+ *  Nunchuk Controller: https://www.amazon.com/Nunchuck-Controller-Joystick-Gamepad-Console/dp/B07RLBN9Z2
+ *  Nunchuk COntroller: https://www.amazon.com/Nunchuck-Controller-Joystick-Gamepad-Console/dp/B083TRZZK7/
+ *  Classic Controller: https://www.amazon.com/JYELUK-Classic-Controller-Compatible-White/dp/B0BZV1RR6Z
+ *  Classic Controller: https://www.amazon.com/Zettaguard-Controller-classic-Console-Gampad-Nintendo/dp/B00XH1FV3
+ *  Connector Breakout: https://www.adafruit.com/product/4836
+ *
  * **********************************************************************************
  * **********************************************************************************            
 */
@@ -58,6 +65,7 @@ String jsonBuffer;
 int lastJoyY, lastJoyX;
 bool lastButtonC, lastButtonZ;
 int button_state, lastButton_0_State, lastButton_1_State, lastButton_2_State;
+bool nunchukConnected;
 long current_time;
 long lastHeartbeatMsg;  
 long nextBattDispDue;
@@ -69,6 +77,11 @@ Nunchuk nchuk;
  * private function declarations
  */
 void neopixel_flash(int color);
+void page_clear_status_area();
+
+/* 
+ * Setup
+ */
 
 void setup() {
 
@@ -101,20 +114,22 @@ void setup() {
   screen_centerText(ROW_M_STAT1, "Screen Initialized", ST77XX_BLUE);
   screen_show();  
   neopixel_flash(0xFF0000);  // RED indicates past serial
-
-  DEBUG_PRINTLN("started");
-
+  
 	nchuk.begin();
   DEBUG_PRINTLN("nunchuk initizialized");
-   
+
+  nunchukConnected = false;
 	while (!nchuk.connect()) {
 		DEBUG_PRINTLN("Nunchuk not detected!");
     pixels.fill(0xc41a00);  // ORANGE indicates error nunchuk
-    pixels.show(); 
+    pixels.show();   
+    screen_centerText(ROW_M_STAT1, "Please Plug in", ST77XX_RED);
+    screen_centerText(ROW_M_STAT2, "the Nunchuk Device", ST77XX_RED);
+    screen_show();
 		delay(1000);
 	} 
-  
-  screen_init();  
+  nunchukConnected = true;
+	page_clear_status_area();   
   screen_centerText(ROW_M_STAT1, "Nunchuk Initialized", ST77XX_GREEN);
   screen_show();
   neopixel_flash(0x00FF00);  // GREEN indicates past nunchuk
@@ -154,10 +169,20 @@ void loop() {
   success = nchuk.update();  // Get new data from the controller
   
 	if (!success) {  // Ruh roh
-		DEBUG_PRINTLN("Controller disconnected!");
+		DEBUG_PRINTLN("Controller disconnected!"); 
+    screen_centerText(ROW_M_STAT1, "Please Plug in", ST77XX_RED);
+    screen_centerText(ROW_M_STAT2, "the Nunchuk Device", ST77XX_RED);
+    screen_show();    
+    nunchukConnected = false;
 		delay(1000);
+    nchuk.connect();
 	}
 	else {
+    if (!nunchukConnected) {      
+      nunchukConnected = true;
+      page_clear_status_area();
+    }
+    
 		// Read a button (on/off, C and Z)
 		boolean zButton = nchuk.buttonZ();
     boolean cButton = nchuk.buttonC();
@@ -321,20 +346,8 @@ void page_main_structure() {
   screen_show();
 }
 
-#ifdef JUNK
-#define ROW_M_BATT1 0
-#define ROW_M_BATT2 1
-#define ROW_M_NUNCHUK_INFO 2
-#define ROW_M_DEVICE 3
-#define ROW_M_STAT1 4
-#define ROW_M_STAT2 5
-
-#define COL_M_BATT_LAB_E 0
-#define COL_M_BATT_LAB_M 7
-#define COL_M_BATT_LAB_N 14
-#define COL_M_DEVICE_LAB 0
-#define COL_M_DEVICE_VAL 7
-#defube COL_M_NUN_X_LAB 0
-#define COL_M_NUN_Y_LAB 7
-#defube COL_M_NUN_BTNS_LAB  15
-#endif
+void page_clear_status_area() {
+  screen_clearLine(ROW_M_STAT1);
+  screen_clearLine(ROW_M_STAT2);
+  screen_show();
+}
