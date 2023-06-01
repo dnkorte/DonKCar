@@ -47,3 +47,15 @@ All of the above works at the current time, with the software as included here.
 The autonomous driving functions using the OpenMV camera are still under development, but are modelled on the OpenMV line following protocol, modified to communicate to the main controller over an i2c connection.  The racer main controller handles the actual throttle and steering servo control, accepting path commands provided by the OpenMV software.  
 
 **Note that the ESP32-S2 / OpenMV configuration is currently very much still under development so use or reference at your own risk.**
+
+<table><tr>
+	<td>
+		<img width="280" src="https://github.com/dnkorte/DonKCar/blob/main/images/tt02b_chassis.jpg" alt="Tamiya TT02b 2-post chassis printed in 1 piece">
+	</td>
+	<td>
+		<img width="280" src="https://github.com/dnkorte/DonKCar/blob/main/images/holyton_chassis.jpg" alt="Holyton RTR chassis printed in 2 pieces, joined">
+	</td>
+	<td>
+		<img width="280" src="https://github.com/dnkorte/DonKCar/blob/main/images/rpi_on_nitro_chassis.jpg" alt="Raspberry Pi on Nitro RCX chassis (older scad design)">
+	</td>
+</tr></table>
