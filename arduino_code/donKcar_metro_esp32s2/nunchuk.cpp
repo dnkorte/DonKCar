@@ -25,11 +25,63 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE. * 
  */
+
 #include "nunchuk.h"
+#include "wifi.h"
 #include "mode_mgr.h"
+
+#define MSG_VOLTS_E   0
+#define MSG_VOLTS_M   1
+#define MSG_STAT1     2
+#define MSG_STAT2     3
+#define MSG_STAT3     4
+#define MSG_MENUITEM  5
+#define MSG_STAT_CLR  6
 
 int cmdC, cmdZ, cmdX, cmdY;
 bool flagC, flagZ, flagX, flagY;
+
+/*
+ * colorcode char for messages is as follows:
+ *  G - Green
+ *  Y - Yellow
+ *  O - Orange
+ *  R - Red
+ *  W - White
+ *  X - Black (background)
+ *  B - Blue
+ *  C - Cyan
+ *  P - Purple
+ */
+ 
+typedef struct {
+  char msgtype;   // 'C', 'Z', 'X', 'Y', 'V', 'x', 'y', '0', '1', '2'
+  int  intdata;
+} MessageCtoR;    // this type (structure) holds a message that goes from Controller to Robot
+
+typedef struct {
+  uint8_t messagetype;
+  char    colorcode;
+  float   battvolts;
+  float   cellvolts;
+} MessageRtoC_batt;    // this type (structure) holds a message that goes from Robot to Controller
+
+typedef struct {
+  uint8_t messagetype;
+  char    colorcode;
+  char    text[22];
+} MessageRtoC_text;    // this type (structure) holds a message that goes from Robot to Controller
+
+typedef struct {
+  uint8_t messagetype;
+  char    colorcode;
+} MessageRtoC_simple;    // this type (structure) holds a message that goes from Robot to Controller
+
+// create a structured object
+MessageRtoC_batt mySendBatt;
+MessageRtoC_text mySendText;
+MessageRtoC_simple mySendSimple;
+MessageCtoR myRcvdData;
 
 void nunchuk_init() {
   flagC = false;
@@ -38,32 +90,38 @@ void nunchuk_init() {
   flagY = false;
 }
 
-void process_nunchuk1_from_espnow(char msgType, int intData, float floatData) {
-  
+bool nunchuk_is_available() {
+  return wifi_is_espnow_avail();
+}
+
+void nunchuk_process_cmd_from_remote(const uint8_t *incomingData, int len) {
   /*
    * handle requests generated in nunchuk module
    * these cannot be completed here because this is called from 
    * the wifi callback for ESPNOW. the callback is part of the
    * nterrupt handler and some events (priincipally those
    * that generate PWM) get confused when called from an ISR
-   */      
-  if (msgType == 'Y') { 
-    cmdY = intData;
+   */  
+  
+  memcpy(&myRcvdData, incomingData, len);  
+      
+  if (myRcvdData.msgtype == 'Y') { 
+    cmdY = myRcvdData.intdata;
     flagY = true;
   }
      
-  if (msgType == 'X') { 
-    cmdX = intData;
+  if (myRcvdData.msgtype == 'X') { 
+    cmdX = myRcvdData.intdata;
     flagX = true;
   }
 
-  if (msgType == 'Z') {
-    cmdZ = intData;
+  if (myRcvdData.msgtype == 'Z') {
+    cmdZ = myRcvdData.intdata;
     flagZ = true;
   }
   
-  if (msgType == 'C') {
-    cmdC = intData;
+  if (myRcvdData.msgtype == 'C') {
+    cmdC = myRcvdData.intdata;
     flagC = true;
   }  
 
@@ -71,38 +129,49 @@ void process_nunchuk1_from_espnow(char msgType, int intData, float floatData) {
    * this one can be directly handled here because it 
    * just sets a variable
    */
-  if (msgType == 'H') {
+  if (myRcvdData.msgtype == 'H') {
     mode_notice_heartbeat();
   }
 }
 
-void process_nunchuk1_from_web(String header) {
-  int startOfCmd = header.indexOf("GET /nunchuk1");
-  String cmd = header.substring(startOfCmd + 4, (startOfCmd+36));
-  int startOfParamName = cmd.indexOf("?") + 1;
-  int startOfValue = cmd.indexOf("=") + 1;
-  int endOfValue = cmd.indexOf(" ");
-  String ParamName = cmd.substring(startOfParamName, startOfValue-1);
-  String myValueS = cmd.substring(startOfValue, endOfValue);
-  int myValue = myValueS.toInt();
-      
-  if (ParamName == "joyY") { 
-    mode_joyY_event(myValue);
+void nunchuk_send_batt(char battcode, char colorcode, float battvolts, float cellvolts) { 
+  if (battcode == 'M') {
+    mySendBatt.messagetype = MSG_VOLTS_M;
+  } else {
+    mySendBatt.messagetype = MSG_VOLTS_E;
   }
-  
-  if (ParamName == "joyX") { 
-    mode_joyX_event(myValue);
-  }
+  mySendBatt.colorcode = colorcode;
+  mySendBatt.battvolts = battvolts;
+  mySendBatt.cellvolts = cellvolts;
 
-  if (ParamName == "zbutn") {
-    mode_z_button_event(myValue);
-  }
-  
-  if (ParamName == "cbutn") {
-    mode_c_button_event(myValue);
-  }  
+  // Send message via ESP-NOW
+  wifi_send_message( (uint8_t *) &mySendBatt, sizeof(mySendBatt));
+}
 
-  if (ParamName == "imalive") {
-    mode_notice_heartbeat();
-  }
+/*
+ * rownumber may be 1,2,3 for status lines, or 0 for menuline
+ * message must be a null terminated array of characters
+ */
+void nunchuk_send_text(int rownumber, char colorcode, char * message) { 
+  switch (rownumber) {
+    case 1:
+      mySendText.messagetype = MSG_STAT1;
+      break;
+    case 2:
+      mySendText.messagetype = MSG_STAT2;
+      break;
+    case 3:
+      mySendText.messagetype = MSG_STAT3;
+      break;
+    case 0:
+      mySendText.messagetype = MSG_MENUITEM;
+      break;
+    default:
+      return;
+  }    
+  mySendText.colorcode = colorcode;  
+  strcpy(mySendText.text, message);
+
+  // Send message via ESP-NOW
+  wifi_send_message( (uint8_t *) &mySendText, sizeof(mySendText));
 }

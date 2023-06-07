@@ -34,6 +34,7 @@
 
 #include "util.h";
 #include "screen.h"
+#include "status.h"
 #include <Adafruit_GFX.h>
 
 // For 1.14", 1.3", 1.54", 1.69", and 2.0" TFT with ST7789:
@@ -189,6 +190,51 @@ void screen_centerString(int rowindex, String myString, int color) {
   screen_centerText(rowindex, myText, color);
 }
 
+
+/*
+ * colorcode char for messages is as follows:
+ *  G - Green
+ *  Y - Yellow
+ *  O - Orange
+ *  R - Red
+ *  W - White
+ *  X - Black (background)
+ *  B - Blue
+ *  C - Cyan
+ *  P - Purple
+ *  Z - Medium Gray
+ *  H - Header
+ */
+int ccToRGB(char colorcode) {
+  switch(colorcode) {
+    case 'G':
+      return COLOR_GREEN;
+    case 'Y':
+      return ST77XX_YELLOW;
+    case 'O':
+      return COLOR_ORANGE;
+    case 'R':
+      return COLOR_RED;
+    case 'W':
+      return COLOR_WHITE;
+    case 'X':
+      return COLOR_BLACK;
+    case 'B':
+      return COLOR_BLUE;
+    case 'C':
+      return COLOR_CYAN;
+    case 'P':
+      return COLOR_PURPLE;
+    case 'Z':
+      return COLOR_MED_GRAY;
+    case 'H':
+      return COLOR_HEADER;
+    default:
+      return COLOR_WHITE;
+  }
+}
+
+#ifdef JUNK
 void screen_dot_blink(int ulx, int uly, int color) {
   // do nothing 
 }
@@ -208,3 +254,4 @@ int screen_get_last_col_index() {
   int lastcol = SCREEN_WIDTH / CELL_WIDTH;
   return lastcol;
 }
+#endif

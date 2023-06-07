@@ -32,10 +32,8 @@
 #include "webap_pages_throt_rc.h"
 #include "webap_pages_batt.h"
 #include "webap_pages_util.h"
-#include "screen.h"
 #include "mode_mgr.h"
-//#include "nunchuk.h"
-
+#include "status.h"
 
 
 /*
@@ -103,18 +101,10 @@ void webap_init(void) {
   WiFi.softAP(config.robot_name, password);
   IPAddress IP = WiFi.softAPIP();
   String IPs = String() + IP[0] + "." + IP[1] + "." + IP[2] + "." + IP[3];
-  
-  screen_clearLine(ROW_MAC);
-  screen_writeText_colrow(COL_LEFTEDGE, ROW_MAC, WIDTH_HEADER, "IP:", COLOR_HEADER );
-  screen_writeString_colrow(COL_DATA+1, ROW_MAC, WIDTH_DATA, IPs, COLOR_CYAN );  
-  
-  screen_centerText(ROW_STAT1, "Connect to ^^^ IP", COLOR_ORANGE);
-  //screen_writeText_colrow(COL_LEFTEDGE, ROW_STAT2, WIDTH_FULL, "on SSID racer333 ###", COLOR_ORANGE);
-  screen_writeText_colrow(COL_LEFTEDGE, ROW_STAT2, WIDTH_FULL, "on SSID", COLOR_ORANGE);
-  screen_writeText_colrow(COL_LEFTEDGE+8, ROW_STAT2, 8, config.robot_name, COLOR_ORANGE);
-  screen_centerText(ROW_STAT3, "Nunchuk Not Avail", COLOR_ORANGE);
-  screen_show();
-  
+  status_disp_IP_or_MAC(IPs, 'I');
+  status_disp_info_msgs("Connect to ^^^ IP", "on SSID "+String(config.robot_name), "", 'O');
+
+  wifi_deinit();
   webModeActive = true;
   webModeEndRequest = false;
   serverAP.begin();           // start http server
@@ -123,18 +113,14 @@ void webap_init(void) {
 void webap_deinit(int reason) {
   webModeActive = false;
   webModeEndRequest = false;
-  wifi_init();
+  wifi_init();    // this re-initializes ESP-NOW mode
   delay(1000);
-  screen_clearLine(ROW_STAT1);
-  screen_clearLine(ROW_STAT2);
-  screen_clearLine(ROW_STAT3);
+  void status_clear_status_area();
   if (reason == 0) {
-    screen_centerText(ROW_STAT2, "web config ended", COLOR_CYAN);
-    screen_centerText(ROW_STAT3, "by user request", COLOR_CYAN);
+    status_disp_info_msgs("", "Web Config Ended", "by user request", 'C');
   }
   if (reason == 1) {
-    screen_centerText(ROW_STAT2, "web config ended", COLOR_ORANGE);
-    screen_centerText(ROW_STAT3, "due to lost signal", COLOR_ORANGE);
+    status_disp_info_msgs("", "Web Config Ended", "due to lost signal", 'O');
   }
   mode_set_mode(MODE_IDLE);
 }
@@ -426,7 +412,6 @@ String webap_process_API(String header) {
    * API function for processing Web Browser Heartbeat signal
    */   
   if (header.indexOf("/wcmd/heartbeat") >= 0) {
-    //Serial.print("NOTICED a  Heartbeat");
     mode_notice_webap_heartbeat();    
   }
   return "OK";

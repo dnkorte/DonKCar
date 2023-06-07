@@ -38,8 +38,9 @@
  * *****************************************************************
  */
 
+
 #ifdef DEBUG
-  #define DEBUG_PRINTLN(x)  Serial.println(x)
+  #define DEBUG_PRINTLN(x) Serial.println(x)
   #define DEBUG_PRINT(x)  Serial.print(x)
 #else
   #define DEBUG_PRINTLN(x)
@@ -48,7 +49,7 @@
 
 #define WANT_TFT    /* use TFT screen instead of OLED */
 
-#define DEVICE_NAME "nunchuk2"
+#define DEVICE_NAME "controller2"
 
 #define JOY_CENTER 128
 
@@ -63,7 +64,8 @@
 #define PIN_BUTTON_1 1 
 #define PIN_BUTTON_2 2   
 
-#define COMMUNIC_MODE_ESPNOW 0
-#define COMMUNIC_MODE_HTML 1
+// comment out whichever one is not used...
+#define CONTROLLER_TYPE_NUNCHUK
+//#define CONTROLLER_TYPE_WIICLASSIC
 
 #endif /* CONFIG_H */

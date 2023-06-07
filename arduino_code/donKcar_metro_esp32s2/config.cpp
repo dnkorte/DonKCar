@@ -46,7 +46,6 @@
 #include "config.h"
 #include "util.h"
 #include "status.h"
-#include "screen.h"
 
  /*
  * ******************************************************************************
@@ -132,9 +131,9 @@ void loadConfiguration(const char *filename, Config &config) {
   // Deserialize the JSON document
   DeserializationError error = deserializeJson(doc, file);
   if (error) {   
-    status_set_info_msg("Couldn't read file", COLOR_ORANGE);
+    status_disp_simple_msg("Couldn't read file", 'O');
     delay(2000);
-    status_set_info_msg("Using default config", COLOR_ORANGE);
+    status_disp_simple_msg("Using default config", 'O');
   }
 
   // Copy values from the JsonDocument to the Config
@@ -193,7 +192,7 @@ void saveConfiguration(const char *filename, const Config &config) {
   // Open file for writing
   File file = SD.open(filename, FILE_WRITE);
   if (!file) {
-    status_set_info_msg("Couldn't create file", COLOR_RED);
+    status_disp_simple_msg("Couldn't create file", 'R');
     return;
   }
 
@@ -247,7 +246,7 @@ void saveConfiguration(const char *filename, const Config &config) {
   // Serialize JSON to file
   //if (serializeJson(doc, file) == 0) {
   if (serializeJsonPretty(doc, file) == 0) {
-    status_set_info_msg("Couldn't write file", COLOR_RED);
+    status_disp_simple_msg("Couldn't write file", 'R');
   }
 
   // Close the file
@@ -272,7 +271,7 @@ void cfg_init(void) {
   
   //while (!SD.begin(PIN_SD_CS, SD_SCK_MHZ(10))) {  // Breakouts require 10 MHz limit due to longer wires
   while (!SD.begin(PIN_SD_CS)) {  // Breakouts require 10 MHz limit due to longer wires
-    status_set_info_msg("Couldn't init SD lib", COLOR_RED); 
+    status_disp_simple_msg("Couldn't init SD lib", 'R'); 
   }
   util_enable_my_spi(PIN_SD_CS);
   
@@ -285,7 +284,7 @@ void cfg_save(void) {
   util_enable_my_spi(PIN_SD_CS);
   // Initialize SD library
   while (!SD.begin(PIN_SD_CS)) {
-    status_set_info_msg("Couldn't init SD lib", COLOR_RED);
+    status_disp_simple_msg("Couldn't init SD lib", 'R');
   }
   util_enable_my_spi(PIN_SD_CS);
   saveConfiguration(filename, config);  
@@ -299,7 +298,7 @@ String cfg_showfile(void) {
   util_enable_my_spi(PIN_SD_CS);
   delay(1000);
   while (!SD.begin(PIN_SD_CS)) {
-    status_set_info_msg("Couldn't init SD lib", COLOR_RED);
+    status_disp_simple_msg("Couldn't init SD lib", 'R');
   }
   
   mystring = "";

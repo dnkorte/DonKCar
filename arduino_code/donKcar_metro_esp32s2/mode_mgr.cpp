@@ -26,7 +26,6 @@
  * SOFTWARE. * 
  */
 #include "mode_mgr.h"
-#include "screen.h"
 #include "status.h"
 #include "drivetrain.h"
 #include "webap_core.h"
@@ -56,11 +55,6 @@ String menuStrings[] = {
 
 int menuItems[] = {
   MODE_IDLE, MODE_MANUAL2, MODE_AUTO, MODE_WAITING_CNX, MODE_LEARNING
-};
-
-
-int menuColors_SCREEN[] = {
-  COLOR_YELLOW, COLOR_BLUE, COLOR_GREEN, COLOR_PURPLE, COLOR_ORANGE
 };
 
 int menuColors_NEO[] = {
@@ -118,16 +112,10 @@ void mode_check_menu_timeout() {
   }  
 }
 
-void mode_check_webap_heartbeat() {  
-  char tmpBuf[6];  
+void mode_check_webap_heartbeat() { 
   webap_downcounter-- ;
   if (curMode == MODE_WAITING_CNX) {
-    itoa(webap_downcounter/2, tmpBuf,10);
-    screen_writeText_colrow(COL_LEFTEDGE+17, ROW_STAT2, 3, tmpBuf, COLOR_YELLOW);
-    // in last 15 seconds of "wait for connection" mode, we change neopixels to flash yellow and purple
-    if (webap_downcounter == 30) {
-      status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_ORANGE);      
-    }
+    status_disp_webconnect_downcounter(webap_downcounter);
   }
   if ((webap_downcounter < 0) && ((curMode == MODE_CONFIGURING) || (curMode == MODE_WAITING_CNX))) {
     webap_deinit(1);          // terminated due to lost signal
@@ -142,18 +130,18 @@ void mode_set_mode(int newMode) {
   curMode = newMode;
   switch (newMode) {
     case MODE_INITIALIZING:
-      status_set_menu_msg("Initializing", COLOR_CYAN);
+      status_disp_menu_msg("Initializing", 'C');
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_RAINBOW_GRAY);
       drivetrain_stop();
       break;
     case MODE_IDLE:
-      status_set_menu_msg("Idle", COLOR_YELLOW);
+      status_disp_menu_msg("Idle", 'Y');
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_RAINBOW_FULL);
       drivetrain_stop();
       drivetrain_disable();
       break;
     case MODE_MANUAL1:
-      status_set_menu_msg("Manual Throt/Steer", COLOR_BLUE);
+      status_disp_menu_msg("Manual Throt/Steer", 'B');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_CYAN);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_WHITE);
       status_neo_send(NEO_CMD_SET_WIN_CTR, 0);
@@ -164,7 +152,7 @@ void mode_set_mode(int newMode) {
       break;
     case MODE_MANUAL2:
       // this used to be CYAN
-      status_set_menu_msg("Manual Steer", COLOR_BLUE);
+      status_disp_menu_msg("Manual Steer", 'B');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_BLUE);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_WHITE);
       status_neo_send(NEO_CMD_SET_WIN_CTR, 0);
@@ -174,7 +162,7 @@ void mode_set_mode(int newMode) {
       drivetrain_enable();
       break;
     case MODE_AUTO:
-      status_set_menu_msg("Auto Drive", COLOR_GREEN);
+      status_disp_menu_msg("Auto Drive", 'G');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_GREEN);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_WHITE);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_WINDOWED);
@@ -182,7 +170,7 @@ void mode_set_mode(int newMode) {
       drivetrain_enable();      
       break;
     case MODE_WAITING_CNX:                                    
-      status_set_menu_msg("Waiting Connect", COLOR_PURPLE);
+      status_disp_menu_msg("Waiting Connect", 'P');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_PURPLE);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_BLACK);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_FLASHING);
@@ -192,25 +180,23 @@ void mode_set_mode(int newMode) {
       webap_init();
       break;
     case MODE_CONFIGURING:
-      status_set_menu_msg("Web Config Running", COLOR_PURPLE);
+      status_disp_menu_msg("Web Config Running", 'P');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_PURPLE);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_WHITE);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_SOLID);
       drivetrain_stop();
       drivetrain_disable();
-      screen_centerText(ROW_STAT1, "USING WEB BROWSER", COLOR_ORANGE);
-      screen_centerText(ROW_STAT2, "TO CONFIGURE", COLOR_ORANGE);
-      screen_centerText(ROW_STAT3, "Nunchuk Not Avail", COLOR_ORANGE);
+      status_disp_info_msgs("USING WEB BROWSER", "TO CONFIGURE", "Nunchuk Not Avail", 'O');
       break;
     case MODE_LEARNING:
-      status_set_menu_msg("Learning", COLOR_ORANGE);
+      status_disp_menu_msg("Learning", 'O');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_ORANGE);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_WHITE);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_SOLID);
       drivetrain_enable();
       break;
     case MODE_MENU:
-      status_set_menu_msg("Menu", COLOR_WHITE);
+      status_disp_menu_msg("Menu", 'W');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_GRAY);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_WHITE);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_WINDOWED);
@@ -220,7 +206,7 @@ void mode_set_mode(int newMode) {
       drivetrain_disable();
       break;
     case MODE_ERROR_BATT:
-      status_set_menu_msg("Battery Very Low", COLOR_RED);
+      status_disp_menu_msg("Battery Very Low", 'R');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_RED);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_BLACK);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_FLASHING);
@@ -228,7 +214,7 @@ void mode_set_mode(int newMode) {
       drivetrain_disable();
       break;
     case MODE_ERROR_HBEAT:
-      status_set_menu_msg("No Nunchuk Detected", COLOR_ORANGE);
+      status_disp_menu_msg("No Nunchuk Detected", 'O');
       status_neo_send(NEO_CMD_SETBACKGROUND,NEO_COLOR_ORANGE);
       status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_BLACK);
       status_neo_send(NEO_CMD_SETMODE,NEO_MODE_FLASHING);
@@ -328,7 +314,7 @@ void mode_menu_indexer() {
   }
   mode_notice_menuaction();
   status_neo_show_menu_psn5(menu_index, menuColors_NEO[menu_index]);
-  status_set_menu_msg(menuStrings[menu_index], COLOR_MED_GRAY);
+  status_disp_menu_msg(menuStrings[menu_index], 'Z');
 }
 
 void mode_menu_itemselect() {

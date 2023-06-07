@@ -123,11 +123,8 @@ void motor_ramptest() {
     digitalWrite(PIN_MOTOR_AIN2, HIGH); // right motor
     digitalWrite(PIN_MOTOR_BIN1, HIGH); // left motor
     digitalWrite(PIN_MOTOR_BIN2, LOW);  // right motor
-    //Serial.print("speeding up:");
     ledcWrite(MOTOR_CHNA, i);
     ledcWrite(MOTOR_CHNB, i);
-    
-    //Serial.println(i);
     delay(100);
    }
 
@@ -138,12 +135,9 @@ void motor_ramptest() {
     digitalWrite(PIN_MOTOR_BIN2, LOW);   // left motor
     ledcWrite(MOTOR_CHNA, i);
     ledcWrite(MOTOR_CHNB, i);
-    //Serial.print("slowing down:");
-    //Serial.println(i);
     delay(100);
    }
   
-  //Serial.println("Stopped");
   // Turn off motors
   ledcWrite(MOTOR_CHNA, 0);
   ledcWrite(MOTOR_CHNB, 0);

@@ -42,6 +42,10 @@
 #include <Arduino.h>
 #include "config.h"
 
+#define STATUS_SCREEN_MAIN      0
+#define STATUS_SCREEN_NODISP    1
+#define STATUS_SCREEN_SPECIAL   2
+
 #define STATUS_INITIALIZING     0
 #define STATUS_IDLE             1
 #define STATUS_MANUAL_WEB       2
@@ -78,9 +82,19 @@
 #define NEO_COLOR_ORANGE        8
 #define NEO_COLOR_GRAY          9
 
+
 void status_init();
-void status_set_menu_msg(String message, int color);
-void status_set_info_msg(String message, int color);
+void status_disp_menu_msg(String message, char colorcode);
+void status_disp_info_msgs(String message1, String message2, String message3, char colorcode);
+void status_disp_simple_msg(String message, char colorcode);
+void status_disp_racername_msg(void);
+void status_disp_throt_value(char dir, int value, char colorcode);
+void status_disp_throt_value(char dir, char * text, char colorcode);
+void status_disp_batt_volts(char battcode, float battvolts, float cellvolts, char colorcode);
+void status_disp_IP_or_MAC(String address, char flavor);
+void status_disp_webconnect_downcounter(int ticks_left);
+void status_disp_mainpage_skeleton(void);
+void status_disp_clear_status_area();
 
 void status_neo_send(int cmd, int param);
 void status_neo_show_steering_info(int cmd_joyX);

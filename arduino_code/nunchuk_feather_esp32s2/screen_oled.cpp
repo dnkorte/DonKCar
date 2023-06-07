@@ -106,8 +106,7 @@ void screen_writeString_raw(int x, int y, int nc, String myString, int color) {
 void screen_init() {  
   screen_initialized = true;
   if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-    DEBUG_PRINTLN(F("SSD1306 allocation failed"));
-    //for(;;); // Don't proceed, loop forever
+    // SSD1306 allocation failed
     screen_initialized = false;
   }
 

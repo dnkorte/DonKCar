@@ -51,12 +51,8 @@
 #include <NintendoExtensionCtrl.h>
 #include "communic.h"
 #include "screen_tft.h"
+#include "status.h"
 #include "battery.h"
-
-#include <Adafruit_NeoPixel.h>
-#define NUMPIXELS 1
-Adafruit_NeoPixel pixels(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
-
 #include <Wire.h>
 
 #define HEARTBEAT_INTERVAL 1000
@@ -76,8 +72,6 @@ Nunchuk nchuk;
 /*
  * private function declarations
  */
-void neopixel_flash(int color);
-void page_clear_status_area();
 
 /* 
  * Setup
@@ -85,13 +79,7 @@ void page_clear_status_area();
 
 void setup() {
 
-  // turn on the Neopixel power supply
-  // https://learn.adafruit.com/esp32-s2-reverse-tft-feather/pinouts
-  pinMode(NEOPIXEL_POWER, OUTPUT);
-  digitalWrite(NEOPIXEL_POWER, HIGH);
-  delay(10);
-  pixels.begin();
-  pixels.setBrightness(20);
+  status_neopixels_init();
 
   /*
    * note we're goint to flash the on-board neopixel a few times
@@ -101,7 +89,7 @@ void setup() {
    * give them time to do that.  if left out, then substitute a delay 
    * early in startup routine to give equivalent time
    */
-  neopixel_flash(0xFFFFFF);
+  status_neopixel_flash(0xFFFFFF);
 
   // note it takes a while for Serial to start; this empty loop waits for it
   // ref   https://forum.arduino.cc/t/cant-view-serial-print-from-setup/167916
@@ -109,30 +97,29 @@ void setup() {
     Serial.begin(115200); 
     while (!Serial) ;
   #endif
-  
-  screen_init();  
-  screen_centerText(ROW_M_STAT1, "Screen Initialized", ST77XX_BLUE);
+
+  status_init(); 
+  screen_centerText(ROW_M_STAT2, "Screen Initialized", ST77XX_BLUE);
   screen_show();  
-  neopixel_flash(0xFF0000);  // RED indicates past serial
+  status_neopixel_flash(0x0000FF);  // BLUE indicates past screen
   
 	nchuk.begin();
-  DEBUG_PRINTLN("nunchuk initizialized");
-
   nunchukConnected = false;
 	while (!nchuk.connect()) {
-		DEBUG_PRINTLN("Nunchuk not detected!");
-    pixels.fill(0xc41a00);  // ORANGE indicates error nunchuk
-    pixels.show();   
+    // try to reconnect, but due to lack of i2c hot-plugging capability
+    // it will probably need a physical reboot
+    status_neopixel_flash(0xc41a00);  // ORANGE indicates error nunchuk
     screen_centerText(ROW_M_STAT1, "Please Plug in", ST77XX_RED);
-    screen_centerText(ROW_M_STAT2, "the Nunchuk Device", ST77XX_RED);
+    screen_centerText(ROW_M_STAT2, "the Nunchuk device", ST77XX_RED);
+    screen_centerText(ROW_M_STAT3, "then reboot", ST77XX_RED);
     screen_show();
 		delay(1000);
 	} 
   nunchukConnected = true;
-	page_clear_status_area();   
-  screen_centerText(ROW_M_STAT1, "Nunchuk Initialized", ST77XX_GREEN);
+	status_clear_status_area();   
+  screen_centerText(ROW_M_STAT2, "Nunchuk Initialized", ST77XX_GREEN);
   screen_show();
-  neopixel_flash(0x00FF00);  // GREEN indicates past nunchuk
+  status_neopixel_flash(0x00FF00);  // GREEN indicates past nunchuk
 
   lastJoyY = 0;
   lastJoyX = 0;
@@ -143,20 +130,21 @@ void setup() {
   lastButton_2_State = 1;
     
   communic_init();  
-  screen_centerText(ROW_M_STAT1, "Radio Initialized", ST77XX_YELLOW);
+  screen_centerText(ROW_M_STAT2, "Radio Initialized", ST77XX_YELLOW);
   screen_show(); 
-  neopixel_flash(0xFFFF00);  // YELLLOW indicates past communic
+  status_neopixel_flash(0xFFFF00);  // YELLLOW indicates past communic
 
   pinMode(PIN_BUTTON_0, INPUT_PULLUP);
   pinMode(PIN_BUTTON_1, INPUT_PULLUP);
   pinMode(PIN_BUTTON_2, INPUT_PULLUP);
   
   nextHeartbeat = millis() + HEARTBEAT_INTERVAL;
-  nextBattDispDue = millis() + 2000;
+  nextBattDispDue = millis() + 20;
   
   batt_init();
-  page_main_structure();    
-  screen_centerText(ROW_M_STAT1, "Ready for Use", ST77XX_WHITE);
+  status_main_structure();    
+  screen_centerText(ROW_M_STAT2, "Ready for Use", ST77XX_WHITE);
+  screen_centerString(ROW_M_STAT3, communic_connected_device(), ST77XX_WHITE);
   screen_show(); 
 }
 
@@ -169,9 +157,11 @@ void loop() {
   success = nchuk.update();  // Get new data from the controller
   
 	if (!success) {  // Ruh roh
-		DEBUG_PRINTLN("Controller disconnected!"); 
+    // try to reconnect, but due to lack of i2c hot-plugging capability
+    // it will probably need a physical reboot
     screen_centerText(ROW_M_STAT1, "Please Plug in", ST77XX_RED);
-    screen_centerText(ROW_M_STAT2, "the Nunchuk Device", ST77XX_RED);
+    screen_centerText(ROW_M_STAT2, "the Nunchuk device", ST77XX_RED);
+    screen_centerText(ROW_M_STAT3, "then reboot", ST77XX_RED);
     screen_show();    
     nunchukConnected = false;
 		delay(1000);
@@ -180,7 +170,7 @@ void loop() {
 	else {
     if (!nunchukConnected) {      
       nunchukConnected = true;
-      page_clear_status_area();
+      status_clear_status_area();
     }
     
 		// Read a button (on/off, C and Z)
@@ -222,45 +212,38 @@ void loop() {
       scaledJoyY = 0;
     }
     
-		// Print all the values!
-		//nchuk.printDebug();
-   
     if (zButton != lastButtonZ) {
       if (zButton) {
-        //communic_send_message("zbutn=1");
-        communic_send_message('Z', 1, MSG_NULL_FLOAT);
-        screen_writeText_colrow(COL_M_NUN_BTNS_LAB+0, ROW_M_NUNCHUK_INFO, 1, "Z", COLOR_GREEN);
+        communic_send_message('Z', 1);
+        //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+0, ROW_M_NUNCHUK_INFO, 1, "Z", COLOR_GREEN);
       } else {
         //communic_send_message("zbutn=0");  
-        communic_send_message('Z', 0, MSG_NULL_FLOAT);
-        screen_writeText_colrow(COL_M_NUN_BTNS_LAB+0, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);      
+        communic_send_message('Z', 0);
+        //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+0, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);      
       }
-      screen_show();
+      //screen_show();
     }
    
     if (cButton != lastButtonC) {
       if (cButton) {
-        //communic_send_message("cbutn=1");
-        communic_send_message('C', 1, MSG_NULL_FLOAT);
-        screen_writeText_colrow(COL_M_NUN_BTNS_LAB+1, ROW_M_NUNCHUK_INFO, 1, "C", COLOR_RED);
+        communic_send_message('C', 1);
+        //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+1, ROW_M_NUNCHUK_INFO, 1, "C", COLOR_RED);
       } else {
         //communic_send_message("cbutn=0");
-        communic_send_message('C', 0, MSG_NULL_FLOAT);
-        screen_writeText_colrow(COL_M_NUN_BTNS_LAB+1, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);        
+        communic_send_message('C', 0);
+        //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+1, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);        
       }
-      screen_show();
+      //screen_show();
     }
    
-    if (abs(scaledJoyX - lastJoyX) > 1) {
-      //communic_send_message("joyX="+String(scaledJoyX)); 
-      communic_send_message('X', scaledJoyX, MSG_NULL_FLOAT);
+    if (abs(scaledJoyX - lastJoyX) > 1) { 
+      communic_send_message('X', scaledJoyX);
       screen_writeText_colrow(COL_M_NUN_X_LAB+2, ROW_M_NUNCHUK_INFO, 4, itoa(scaledJoyX, tmpBuf, 10), COLOR_FOREGROUND);
       screen_show();
     }
    
-    if (abs(scaledJoyY - lastJoyY) > 1) {
-      //communic_send_message("joyY="+String(scaledJoyY)); 
-      communic_send_message('Y', scaledJoyY, MSG_NULL_FLOAT);
+    if (abs(scaledJoyY - lastJoyY) > 1) {; 
+      communic_send_message('Y', scaledJoyY);
       screen_writeText_colrow(COL_M_NUN_Y_LAB+2, ROW_M_NUNCHUK_INFO, 4, itoa(scaledJoyY, tmpBuf, 10), COLOR_FOREGROUND);
       screen_show();
     }
@@ -274,11 +257,11 @@ void loop() {
   button_state = digitalRead(PIN_BUTTON_0);
   if (button_state != lastButton_0_State) {
     if (button_state == 0) {  // pressed      
-      screen_writeText_colrow(COL_M_NUN_BTNS_LAB+2, ROW_M_NUNCHUK_INFO, 1, "0", COLOR_ORANGE);;
-      screen_show();
+      //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+2, ROW_M_NUNCHUK_INFO, 1, "0", COLOR_ORANGE);;
+      //screen_show();
     } else {    
-      screen_writeText_colrow(COL_M_NUN_BTNS_LAB+2, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);
-      screen_show();
+      //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+2, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);
+      //screen_show();
     }
     lastButton_0_State = button_state;
   }
@@ -286,11 +269,11 @@ void loop() {
   button_state = digitalRead(PIN_BUTTON_1);
   if (button_state != lastButton_1_State) {
     if (button_state == 0) {  // pressed      
-      screen_writeText_colrow(COL_M_NUN_BTNS_LAB+3, ROW_M_NUNCHUK_INFO, 1, "1", COLOR_ORANGE);;
-      screen_show();
+      //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+3, ROW_M_NUNCHUK_INFO, 1, "1", COLOR_ORANGE);;
+      //screen_show();
     } else {    
-      screen_writeText_colrow(COL_M_NUN_BTNS_LAB+3, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);
-      screen_show();
+      //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+3, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);
+      //screen_show();
     }
     lastButton_1_State = button_state;
   }
@@ -298,56 +281,35 @@ void loop() {
   button_state = digitalRead(PIN_BUTTON_2);
   if (button_state != lastButton_2_State) {
     if (button_state == 0) {  // pressed      
-      screen_writeText_colrow(COL_M_NUN_BTNS_LAB+4, ROW_M_NUNCHUK_INFO, 1, "2", COLOR_ORANGE);;
-      screen_show();
+      //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+4, ROW_M_NUNCHUK_INFO, 1, "2", COLOR_ORANGE);;
+      //screen_show();
     } else {    
-      screen_writeText_colrow(COL_M_NUN_BTNS_LAB+4, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);
-      screen_show();
+      //screen_writeText_colrow(COL_M_NUN_BTNS_LAB+4, ROW_M_NUNCHUK_INFO, 1, " ", COLOR_FOREGROUND);
+      //screen_show();
     }
     lastButton_2_State = button_state;
   }
 
   
   if (current_time > nextHeartbeat) {
-    //communic_send_message("imalive=1");
-    communic_send_message('H', 1, MSG_NULL_FLOAT);
+    communic_send_message('H', 1);
     nextHeartbeat = millis() + HEARTBEAT_INTERVAL;
   }
   
   if (current_time > nextBattDispDue) {
     nextBattDispDue = current_time + 60000;
-    display_mybatt();
+    display_my_mybatt();
+  }
+  
+  if (batt_has_new_data_ready('E')) {
+    display_remote_mybatts();
+  }
+  if (batt_has_new_data_ready('M')) {
+    display_remote_mybatts();
   }
 
-  DEBUG_PRINTLN("end of loop");
+  // display any new status messages or menu lines that came in over espnow
+  status_display_mainscreen_messages();
+
   delay(50);
-}
-
-void neopixel_flash(int color) {
-  pixels.fill(color);  // RED indicates past serial
-  pixels.show(); 
-  delay(500);
-  pixels.fill(0x000000);
-  pixels.show(); 
-  delay(500);
-}
-
-void page_main_structure() {
-  screen_writeText_colrow(COL_M_BATT_LAB_E, ROW_M_BATT1, 2, "E:", ST77XX_CYAN);
-  screen_writeText_colrow(COL_M_BATT_LAB_M, ROW_M_BATT1, 2, "M:", ST77XX_CYAN);
-  screen_writeText_colrow(COL_M_BATT_LAB_N, ROW_M_BATT1, 2, "N:", ST77XX_CYAN);
-  
-  screen_writeText_colrow(COL_M_BATT_LAB_E, ROW_M_BATT2, 2, "E:", ST77XX_CYAN);
-  screen_writeText_colrow(COL_M_BATT_LAB_M, ROW_M_BATT2, 2, "M:", ST77XX_CYAN);
-  screen_writeText_colrow(COL_M_BATT_LAB_N, ROW_M_BATT2, 2, "N:", ST77XX_CYAN);
-  
-  screen_writeText_colrow(COL_M_NUN_X_LAB, ROW_M_NUNCHUK_INFO, 2, "Y:", ST77XX_CYAN);
-  screen_writeText_colrow(COL_M_NUN_Y_LAB, ROW_M_NUNCHUK_INFO, 2, "X:", ST77XX_CYAN);
-  screen_show();
-}
-
-void page_clear_status_area() {
-  screen_clearLine(ROW_M_STAT1);
-  screen_clearLine(ROW_M_STAT2);
-  screen_show();
 }

@@ -27,8 +27,9 @@
  */
 #include "status.h"
 #include "screen.h"
-//#include "serial_com_esp32.h"
 #include "i2c_com.h"
+#include "nunchuk.h"
+
 
 /*
  * ***************************************************************
@@ -43,33 +44,190 @@
 
 int  lastJoyX, lastJoyY;
 int  neo_background_color, neo_foreground_color;
-
+int  current_screen;
 
 void status_init() {
+  screen_init();
+  current_screen = STATUS_SCREEN_MAIN;
+  screen_centerString(ROW_STAT4, "Initializing", COLOR_CYAN);
+  
   lastJoyX = 0;
   lastJoyY = 0;
   neo_background_color = NEO_COLOR_BLACK;
   neo_foreground_color = NEO_COLOR_WHITE;
-  //curStatus = STATUS_INITIALIZING;
   screen_centerString(ROW_STAT4, "Initializing", COLOR_CYAN);
 }
 
-void status_set_menu_msg(String message, int color) {
-    screen_centerString(ROW_STAT4, message, color);
+/*
+ * *****************************************
+ * TFT screen related functions
+ * *****************************************
+ */
+ 
+void status_disp_menu_msg(String message, char colorcode) {
+  char tmpBuf[22];
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    screen_centerString(ROW_STAT4, message, ccToRGB(colorcode));
+  }
+  if (nunchuk_is_available()) {
+    message.toCharArray(tmpBuf,21);
+    nunchuk_send_text(0, colorcode, tmpBuf);
+  }
 }
 
-void status_set_info_msg(String message, int color) {
-    screen_centerString(ROW_STAT2, message, color);
+void status_disp_info_msgs(String message1, String message2, String message3, char colorcode) {
+  char tmpBuf[22];
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    screen_centerString(ROW_STAT1, message1, ccToRGB(colorcode));
+    screen_centerString(ROW_STAT2, message2, ccToRGB(colorcode));
+    screen_centerString(ROW_STAT3, message3, ccToRGB(colorcode));
+  }
+  if (nunchuk_is_available()) {
+    message1.toCharArray(tmpBuf,21);
+    nunchuk_send_text(1, colorcode, tmpBuf);
+    message2.toCharArray(tmpBuf,21);
+    nunchuk_send_text(2, colorcode, tmpBuf);
+    message3.toCharArray(tmpBuf,21);
+    nunchuk_send_text(3, colorcode, tmpBuf);
+  }
 }
 
+/* 
+ *  displays message to ONLY the center status line on display
+ *  and to ESP-NOW
+ */
+void status_disp_simple_msg(String message, char colorcode) {
+  char tmpBuf[22];
+  String emptiness = "";
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    screen_centerString(ROW_STAT2, message, ccToRGB(colorcode));
+    screen_clearLine(ROW_STAT1);
+    screen_clearLine(ROW_STAT3);
+  }
+  if (nunchuk_is_available()) {
+    emptiness.toCharArray(tmpBuf,21);
+    nunchuk_send_text(1, colorcode, tmpBuf);
+    message.toCharArray(tmpBuf,21);
+    nunchuk_send_text(2, colorcode, tmpBuf);
+    emptiness.toCharArray(tmpBuf,21);
+    nunchuk_send_text(3, colorcode, tmpBuf);
+  }
+}
 
+void status_disp_clear_status_area() {
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    screen_clearLine(ROW_STAT1);
+    screen_clearLine(ROW_STAT2);
+    screen_clearLine(ROW_STAT3);  
+  }
+}
+
+/*
+ * displays racer name centered on appropriate line
+ * note that it gets name from config info and the name
+ * is horizontally centered on the full line.
+ * 
+ * this will erase any throttle info that is diaplayed
+ * to left or right of the racername
+ */
+void status_disp_racername_msg(void) {  
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    screen_centerText(ROW_RACERNAME, config.robot_name, ccToRGB('C') ); 
+  }
+}
+
+void status_disp_throt_value(char dir, int value, char colorcode) {
+  char myBuf[6];
+  if (current_screen == STATUS_SCREEN_MAIN) { 
+    if ((dir == 'Y') || (dir == 'L')) {
+      itoa(value, myBuf,10);
+      screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, myBuf, ccToRGB(colorcode)); 
+    } else {
+      itoa(value, myBuf,10);
+      screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, myBuf, ccToRGB(colorcode));
+    }
+  }
+}
+
+void status_disp_throt_value(char dir, char * text, char colorcode) {
+  if (current_screen == STATUS_SCREEN_MAIN) { 
+    if ((dir == 'Y') || (dir == 'R')) {
+      screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, text, ccToRGB(colorcode));
+    } else {
+      screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, text, ccToRGB(colorcode));
+    }
+  }
+}
+
+void status_disp_batt_volts(char battcode, float battvolts, float cellvolts, char colorcode) {
+  char tmpBuf[12];
+  
+  if (current_screen == STATUS_SCREEN_MAIN) { 
+    if (battcode == 'E') {
+      dtostrf(battvolts, 5, 2, tmpBuf);
+      screen_writeText_colrow(COL_DATA, ROW_BATT_E, 5, tmpBuf, ccToRGB(colorcode)); 
+       
+      dtostrf(cellvolts, 5, 2, tmpBuf);
+      screen_writeText_colrow(COL_DATA+7, ROW_BATT_E, 1, "(", ccToRGB('W'));
+      screen_writeText_colrow(COL_DATA+8, ROW_BATT_E, 5, tmpBuf, ccToRGB(colorcode));
+      screen_writeText_colrow(COL_DATA+14, ROW_BATT_E, 2, ")", ccToRGB('W')); 
+    } else {
+      dtostrf(battvolts, 5, 2, tmpBuf);
+      screen_writeText_colrow(COL_DATA, ROW_BATT_M, 5, tmpBuf, ccToRGB(colorcode)); 
+       
+      dtostrf(cellvolts, 5, 2, tmpBuf);
+      screen_writeText_colrow(COL_DATA+7, ROW_BATT_M, 1, "(", ccToRGB('W'));
+      screen_writeText_colrow(COL_DATA+8, ROW_BATT_M, 5, tmpBuf, ccToRGB(colorcode));
+      screen_writeText_colrow(COL_DATA+14, ROW_BATT_M, 2, ")", ccToRGB('W')); 
+    }
+  }
+}
+
+void status_disp_IP_or_MAC(String address, char flavor) {  
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    screen_clearLine(ROW_MAC);
+    if (flavor == 'M') {
+      screen_writeText_colrow(COL_LEFTEDGE, ROW_MAC, WIDTH_HEADER, "M:", ccToRGB('H') );
+      screen_writeString_colrow(COL_LEFTEDGE+3, ROW_MAC, WIDTH_FULL-3, address, ccToRGB('C') );
+    } else {
+      screen_writeText_colrow(COL_LEFTEDGE, ROW_MAC, WIDTH_HEADER, "IP:", ccToRGB('H') );
+      screen_writeString_colrow(COL_DATA, ROW_MAC, WIDTH_DATA, address, ccToRGB('C') );
+    }  
+  }
+}
+
+/*
+ * note each tick represents 0.5 seconds
+ */
+void status_disp_webconnect_downcounter(int ticks_left) {
+  char tmpBuf[6];
+  
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    itoa(ticks_left/2, tmpBuf,10);
+    screen_centerText(ROW_STAT3, tmpBuf, COLOR_YELLOW);
+    // in last 15 seconds of "wait for connection" mode, we change neopixels to flash yellow and purple
+    if (ticks_left == 30) {
+      status_neo_send(NEO_CMD_SETFOREGROUND,NEO_COLOR_ORANGE);      
+    }
+  }
+}
+
+void status_disp_mainpage_skeleton(void) {
+  if (current_screen == STATUS_SCREEN_MAIN) {
+    status_disp_racername_msg();
+    screen_writeText_colrow(COL_LEFTEDGE, ROW_BATT_E, WIDTH_FULL, "Bat E:", ccToRGB('H'));
+    screen_writeText_colrow(COL_LEFTEDGE, ROW_BATT_M, WIDTH_FULL, "Bat M:", ccToRGB('H'));
+  }
+}
+
+/*
+ * *****************************************
+ * NeoPixel related functions
+ * *****************************************
+ */
 
 void status_neo_send(int cmd, int param) {
   uint8_t data;
-  
-  //Serial.print(cmd);
-  //Serial.print(">");
-  //Serial.println(param);
 
   data = ((cmd << 5) & 0xE0) | (param & 0x1f);
   //sercom2_sendchar(data);

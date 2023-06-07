@@ -28,14 +28,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE. * 
  */
-#ifndef BATTERY_H
-#define BATTERY_H
+#ifndef BATT_H
+#define BATT_H
 
 #include <Arduino.h>
 #include "config.h"
 
 void batt_init();
-float read_batt();
-void display_mybatt();
+void display_my_mybatt();
+void display_remote_mybatts();
+void batt_store_batt_volts(char battcode, float battvolts, float cellvolts, char colorcode);
+bool batt_has_new_data_ready(char battcode);
 
-#endif // BATTERY_H
+#endif // BATT_H

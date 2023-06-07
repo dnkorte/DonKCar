@@ -60,17 +60,16 @@
 
 // screen locations for text
 #define ROW_M_BATT1 0
-#define ROW_M_BATT2 1
-#define ROW_M_NUNCHUK_INFO 2
-#define ROW_M_DEVICE 3
-#define ROW_M_STAT1 4
-#define ROW_M_STAT2 5
+//#define ROW_M_BATT2 1
+#define ROW_M_NUNCHUK_INFO 1
+#define ROW_M_STAT1 2
+#define ROW_M_STAT2 3
+#define ROW_M_STAT3 4
+#define ROW_M_MENU_INFO 5
 
 #define COL_M_BATT_LAB_E 0
 #define COL_M_BATT_LAB_M 7
-#define COL_M_BATT_LAB_N 14
-#define COL_M_DEVICE_LAB 0
-#define COL_M_DEVICE_VAL 7
+#define COL_M_BATT_LAB_C 14
 #define COL_M_NUN_X_LAB 0
 #define COL_M_NUN_Y_LAB 7
 #define COL_M_NUN_BTNS_LAB  15
@@ -136,6 +135,7 @@ void screen_dot_blink(int ulx, int uly, int color );
 int screen_get_pixel_x(int col);
 int screen_get_pixel_y(int rowindex);
 int screen_get_last_col_index();
+int ccToRGB(char colorcode);
 
 void screen_writeText_xrow(int x, int rowindex, int w, char myText[], int color );
 void screen_writeText_colrow(int col, int rowindex, int nc, char myText[], int color );

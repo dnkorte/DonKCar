@@ -35,7 +35,8 @@
 #include "config.h"
 
 void communic_init();
-void communic_send_message(char msgType, int intData, float floatData);
+String communic_connected_device();
+void communic_send_message(char msgType, int intData);
 void communic_display_signal_strength();
 
 #define MSG_NULL_FLOAT 0.00

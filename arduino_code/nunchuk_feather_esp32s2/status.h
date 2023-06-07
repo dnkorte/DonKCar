@@ -1,11 +1,13 @@
 /*
- * Summary: openMV + esp32 based autonomous racer
+ * Summary: remote controller for robots/racers uses nunchuk as actuator
+ *    communicates to robot/racer using ESP-NOW protocol; this version
+ *    runs on an Adafruit QTPy ESP32-S2 and has an oled display
  * 
  * Author(s):  Don Korte
  * Repository: https://github.com/dnkorte/DonKCar
  *
  * MIT License
- * Copyright (c) 2020 Don Korte
+ * Copyright (c) 2023 Don Korte
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -15,6 +17,7 @@
  * furnished to do so, subject to the following conditions:
  * 
  * The above copyright notice and this permission notice shall be included in all
+ * 0000000
  * copies or substantial portions of the Software.
  * 
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
@@ -25,19 +28,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE. * 
  */
+#ifndef STATUS_H
+#define STATUS_H
+
 #include <Arduino.h>
 #include "config.h"
 
-#ifndef NUNCHUK_H
-#define NUNCHUK_H
 
-extern int cmdC, cmdZ, cmdX, cmdY;
-extern bool flagC, flagZ, flagX, flagY;
+#define STATUS_SCREEN_MAIN      0
+#define STATUS_SCREEN_NODISP    1
+#define STATUS_SCREEN_SPECIAL   2
 
-void nunchuk_init();
-bool nunchuk_is_available();
-void nunchuk_process_cmd_from_remote(const uint8_t *incomingData, int len);
-void nunchuk_send_batt(char battcode, char colorcode, float battvolts, float cellvolts);
-void nunchuk_send_text(int rownumber, char colorcode, char * message);
+void status_init();
+void status_clear_status_area();
+void status_save_menu_msg(String message, char colorcode);
+void status_save_info_msgs(String message1, String message2, String message3, char colorcode);
+void status_save_simple_msg(String message, char colorcode);
+void status_save_msg(int msg_num, String message, char colorcode);
+void status_display_mainscreen_messages();
+void status_disp_batt_volts(char battcode, float battvolts, float cellvolts, char colorcode);
+void status_main_structure();
 
-#endif   /* NUNCHUK_H */ 
+void status_neopixels_init();
+void status_neopixel_flash(int color);
+
+#endif  // STATUS_H

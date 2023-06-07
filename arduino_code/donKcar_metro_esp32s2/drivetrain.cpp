@@ -26,7 +26,6 @@
  * SOFTWARE. * 
  */
 #include "drivetrain.h"
-#include "screen.h"
 #include "status.h"
 #include "mode_mgr.h"
 #include "util.h"
@@ -65,15 +64,15 @@
   
 void drivetrain_init() { 
   servo_init();
-  status_set_info_msg( "Arming ESC", COLOR_YELLOW);
+  status_disp_simple_msg( "Arming ESC", 'Y');
   servo_arm_throttle();  
-  status_set_info_msg( "", COLOR_YELLOW);
+  status_disp_clear_status_area();
 }
 
 void drivetrain_stop(void) {
   drivetrain_go(0, 0);
-  screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, "STOP", COLOR_RED);
-  screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, "STOP", COLOR_RED);
+  status_disp_throt_value('L', "STOP", 'R');
+  status_disp_throt_value('R', "STOP", 'R');
 }
 
 void drivetrain_enable() {
@@ -89,18 +88,13 @@ void drivetrain_disable() {
  * @param: int cmd_joyY, cmd_joyX  should be -255 (back) to +255 (fwd)
  */
 void drivetrain_go(int cmd_joyY, int cmd_joyX) {  
-  char myBuf[6];  
   
   if (mode_motion_permitted()) { 
     servo_set_steering_value(cmd_joyX);
     servo_set_throttle(cmd_joyY);
     status_neo_show_movement_info(cmd_joyY, cmd_joyX);    // neopixel display
-    
-    itoa(cmd_joyY, myBuf,10);
-    screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, myBuf, COLOR_WHITE);
-    
-    itoa(cmd_joyX, myBuf,10);
-    screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, myBuf, COLOR_WHITE);    
+    status_disp_throt_value('Y', cmd_joyY, 'W');
+    status_disp_throt_value('X', cmd_joyX, 'W');    
   }
 }
 
@@ -108,15 +102,11 @@ void drivetrain_go(int cmd_joyY, int cmd_joyX) {
  * drivetrain_set_steering_value() sets steering angle as fraction of full travel
  * @param: int value  should be -255 (full left) to +255 (full right)
  */
-void drivetrain_set_steering_value(int value) {
-  char myBuf[6];  
-  
+void drivetrain_set_steering_value(int value) {  
   if (mode_motion_permitted()) { 
     servo_set_steering_value(value);
-    status_neo_show_steering_info(value);    // neopixel display
-    
-    itoa(value, myBuf,10);
-    screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, myBuf, COLOR_WHITE);    
+    status_neo_show_steering_info(value);    // neopixel display    
+    status_disp_throt_value('X', value, 'W');     
   }  
 }
 #endif  /* FLAVOR_RC */
@@ -178,14 +168,12 @@ void drivetrain_go_independent(int throtL, int throtR) {
   
   if (mode_motion_permitted()) {
     motor_throtL = throtL;
-    motor_driveL(throtL);
-    itoa(throtL, myBuf,10);
-    screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, myBuf, COLOR_WHITE);
+    motor_driveL(throtL);     
+    status_disp_throt_value('L', throtL, 'W');     
     
     motor_throtR = throtR;
     motor_driveR(throtR);
-    itoa(throtR, myBuf,10);
-    screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, myBuf, COLOR_WHITE);
+    status_disp_throt_value('R', throtR, 'W');
   }
 }
 
@@ -205,8 +193,8 @@ void drivetrain_stop(void) {
   motors_stop();  
   motor_throtL = 0;
   motor_throtR = 0;  
-  screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, "STOP", COLOR_RED);
-  screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, "STOP", COLOR_RED);
+  status_disp_throt_value('L', "STOP", 'R');
+  status_disp_throt_value('R', "STOP", 'R');
 }
 
 void drivetrain_enable() {
@@ -222,20 +210,16 @@ void drivetrain_disable() {
  * @param: int cmd_joyY, cmd_joyX  should be -255 (back) to +255 (fwd)
  */
 void drivetrain_go(int cmd_joyY, int cmd_joyX) {  
-  char myBuf[6];  
-  
   if (mode_motion_permitted()) {  
     motor_throtL = cmd_joyY + ( (float) config.steering_fraction * (float) cmd_joyX);
     motor_throtR = cmd_joyY - ( (float) config.steering_fraction * (float) cmd_joyX);
     rescale_throttles();
     
     motor_driveL(throtL);
-    itoa(throtL, myBuf,10);
-    screen_writeText_colrow(COL_THROT_L, ROW_THROT, 5, myBuf, COLOR_WHITE);
+    status_disp_throt_value('L', throtL, 'W');
     
     motor_driveR(throtR);
-    itoa(throtR, myBuf,10);
-    screen_writeText_colrow(COL_THROT_R, ROW_THROT, 5, myBuf, COLOR_WHITE);
+    status_disp_throt_value('R', throtR, 'W');
     
     status_show_steering_info(cmd_joyY, cmd_joyX);    // neopixel display
   }

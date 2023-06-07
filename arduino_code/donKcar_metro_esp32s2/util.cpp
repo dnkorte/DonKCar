@@ -114,13 +114,9 @@ boolean isNumeric(String testWord) {
       else otherCount++; //that's bad :(
     }
     if (signCount>1 || decPointCount>1 || digitCount<1 || otherCount>0) {
-      //Serial.print("Substring \"");Serial.print(testString);
-      //Serial.println("\" is NOT a float");
       return false;
     }
     else {
-      //Serial.print("Substring \"");Serial.print(testString);
-      //Serial.println("\" IS a float!");
       return true;
     }
  }

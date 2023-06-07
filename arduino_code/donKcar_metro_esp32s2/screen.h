@@ -59,12 +59,20 @@
 #define COL_THROT_L 0
 #define COL_THROT_R (WIDTH_FULL-4)
 
+
+//#include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
+#include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
+
 // RGB888 to 565 converter  https://trolsoft.ru/en/articles/rgb565-color-picker
 // 565 color picker https://chrishewett.com/blog/true-rgb565-colour-picker/
 // 565 color picker http://www.barth-dev.de/online/rgb565-color-picker/
 // https://trolsoft.ru/en/articles/rgb565-color-picker  
 // http://www.barth-dev.de/online/rgb565-color-picker/ 
 // http://drakker.org/convert_rgb565.html
+
+// note that the colors defined here are for standard RGR565 TFT
+// and probably works with most any RGB565 type device, but could
+// be changed if an OLED or an 8 bit RGB display is used
 
 #define COLOR_FOREGROUND ST77XX_WHITE
 #define COLOR_BACKGROUND ST77XX_BLACK
@@ -80,6 +88,14 @@
 #define COLOR_BLACK ST77XX_BLACK
 #define COLOR_PURPLE 0xB814
 
+/*
+ * NOTE these colors are meaningless here, just to save
+ * them for future builds.  they represent full 8 bit RGB colors
+ * 
+ * the actual color definitopms ised are int eh status.h file
+ * and must be adjusted if the display used is not a standard
+ * RGB565 display
+ */
 #define COLOR_GRAY 0x8430           // 0x888888
 #define COLOR_LIGHT_GRAY 0xe75c     // 0xEEEEEE
 #define COLOR_MED_GRAY 0xBDF7       // 0xC0C0C0
@@ -102,10 +118,11 @@ void screen_init();
 void screen_show();
 void screen_clear();
 void screen_clearLine(int rowindex);
-void screen_dot_blink(int ulx, int uly, int color );
-int screen_get_pixel_x(int col);
-int screen_get_pixel_y(int rowindex);
-int screen_get_last_col_index();
+int ccToRGB(char colorcode);
+//void screen_dot_blink(int ulx, int uly, int color );
+//int screen_get_pixel_x(int col);
+//int screen_get_pixel_y(int rowindex);
+//int screen_get_last_col_index();
 
 void screen_writeText_xrow(int x, int rowindex, int w, char myText[], int color );
 void screen_writeText_colrow(int col, int rowindex, int nc, char myText[], int color );

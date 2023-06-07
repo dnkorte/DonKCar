@@ -33,7 +33,10 @@
 #include "config.h"
 
 void wifi_init();
-//void wifi_display_signal_strength();
+void wifi_deinit();
+bool wifi_is_espnow_avail();
+//void wifi_send_message(void);
+void wifi_send_message( uint8_t *databuffer, int len);
 
 #define MSG_NULL_FLOAT 0.00
 #define MSG_NULL_INT 0

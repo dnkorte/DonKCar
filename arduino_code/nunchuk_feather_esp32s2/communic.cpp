@@ -28,34 +28,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE. * 
  */
+
 #include "communic.h"
-#include "screen_tft.h"
+#include "status.h"
+#include "battery.h"
 
 #include <WiFi.h>
 #include <Arduino_JSON.h>
 #include <esp_now.h>
+
+#define MSG_VOLTS_E   0
+#define MSG_VOLTS_M   1
+#define MSG_STAT1     2
+#define MSG_STAT2     3
+#define MSG_STAT3     4
+#define MSG_MENUITEM  5
+#define MSG_STAT_CLR  6
 
 /*
  * info about ESP-NOW communication
  * https://dronebotworkshop.com/esp-now/ 
  */
 
-/*
- * 
- * To access the esp32 by name instead of ip address
- *
- *   #include <ESPmDNS.h>
- *   then after WiFi.begin() add:
- *   
- *   if(!MDNS.begin("esp32")){
- *    Serial.println("Error starting mDNS");
- *   return;
- *   }
- *   
- *   Then your browser will see http://racer2.local (or whatever the ROBOT_NAME is)
- *   This note from user "Epi" on oct 24 2022 in replies to
- *   https://randomnerdtutorials.com/esp32-async-web-server-espasyncwebserver-library/
- */
 
 /*
  * *************************************************
@@ -63,72 +57,61 @@
  * *************************************************
 */
 
-// Replace the next variables with your SSID/Password combination
-//char ssid[] = "";
-//char password[] = "";
-
+// available target device names
+String deviceNames[] = {
+  "racer3", "notused", "notused"
+};
 
 // MAC Address of responder - this is for (red) racer3
-uint8_t broadcastAddress[] = {0x7c, 0xdf, 0xa1, 0x44, 0x41, 0x76};
+uint8_t deviceAddresses[][6] = { 
+  {0x7c, 0xdf, 0xa1, 0x44, 0x41, 0x76},
+  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 
+  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00} 
+};
 
-typedef struct struct_message {
-  char msgtype;   // 'C', 'Z', 'B', 'X', 'Y', 'V'
+typedef struct {
+  char msgtype;   // 'C', 'Z', 'X', 'Y', 'V', 'x', 'y', '0', '1', '2'
   int  intdata;
-  float floatdata;
-} Message;
+} MessageCtoR;    // this type (structure) holds a message that goes from Controller to Robot
+
+typedef struct {
+  uint8_t messagetype;
+  char    colorcode;
+  float   battvolts;
+  float   cellvolts;
+} MessageRtoC_batt;    // this type (structure) holds a message that goes from Robot to Controller
+
+typedef struct {
+  uint8_t messagetype;
+  char    colorcode;
+  char    text[22];
+} MessageRtoC_text;    // this type (structure) holds a message that goes from Robot to Controller
+
+typedef struct {
+  uint8_t messagetype;
+  char    colorcode;
+} MessageRtoC_simple;    // this type (structure) holds a message that goes from Robot to Controller
 
 // create a structured object
-Message myData;
+MessageRtoC_batt myRcvdBatt;
+MessageRtoC_text myRcvdText;
+MessageRtoC_simple myRcvdSimple;
+MessageCtoR mySendData;
 
 // peer info
 esp_now_peer_info_t peerInfo;
 
+int selectedDeviceIndex;
+
 /*
  * *************************************************
- * private functions 
+ * private function templates
  * *************************************************
-*/
+ */
 
-// Callback function called when data is sent
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  DEBUG_PRINT("\r\nLast Packet Send Status:\t");
-  DEBUG_PRINTLN(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-}
-
-void setup_wifi_espnow() {   // Set ESP32 as a Wi-Fi Station
-  String myMACs;
-  char myMACc[20];
-  char tmpBuf[24];
-  
-  WiFi.mode(WIFI_STA);
- 
-  // Initilize ESP-NOW
-  if (esp_now_init() != ESP_OK) {
-    DEBUG_PRINTLN("Error initializing ESP-NOW");
-    return;
-  }
- 
-  // Register the send callback
-  esp_now_register_send_cb(OnDataSent);
-  
-  // Register peer
-  memcpy(peerInfo.peer_addr, broadcastAddress, 6);
-  peerInfo.channel = 0;  
-  peerInfo.encrypt = false;
-  
-  // Add peer        
-  if (esp_now_add_peer(&peerInfo) != ESP_OK){
-    DEBUG_PRINTLN("Failed to add peer");
-    return;
-  }  
- 
-  //screen_writeText_colrow(COL_LEFTEDGE, ROW_MAC, WIDTH_HEADER, "MC:", COLOR_FOREGROUND );
-  //myMACs = WiFi.macAddress(); 
-  //myMACs.toCharArray(myMACc, 20);
-  //screen_writeText_colrow(COL_LEFTEDGE+4, ROW_MAC, WIDTH_DATA, myMACc, COLOR_FOREGROUND );
-}
-
-
+void setup_wifi_espnow();
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len);
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status);
 
 /*
  * *************************************************
@@ -144,19 +127,104 @@ void communic_init() {
  *  sends a message to racer, mstType is:
  *  'C' (button C), 'Z' (button Z), 'B' (button B), 'X' (joy X), 'Y' (joy Y), 'V' (batt volts)', "h" (heartbeat)
  */
-void communic_send_message(char msgType, int intData, float floatData) {
+void communic_send_message(char msgType, int intData) {
   
-  myData.msgtype = msgType;
-  myData.intdata = intData;
-  myData.floatdata = floatData;
+  mySendData.msgtype = msgType;
+  mySendData.intdata = intData;
 
   // Send message via ESP-NOW
-  esp_err_t result = esp_now_send(broadcastAddress, (uint8_t *) &myData, sizeof(myData));
+  esp_err_t result = esp_now_send(deviceAddresses[selectedDeviceIndex], (uint8_t *) &mySendData, sizeof(mySendData));
    
   if (result == ESP_OK) {
-    DEBUG_PRINTLN("Sending confirmed");
+    // Sending confirmed
   }
   else {
-    DEBUG_PRINTLN("Sending error");
+    // Sending error
   }
+}
+
+String communic_connected_device() {
+  return deviceNames[selectedDeviceIndex];
+}
+
+/*
+ * *************************************************
+ * private functions 
+ * *************************************************
+*/
+
+// Callback function called when data is sent
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+  
+}
+
+// Callback function executed when data is received
+// note this is processed during ISR (interrupt service) so 
+// it should be fast, and should not do any millis() checks
+// or anything that would disrupt an ISR
+
+void OnDataRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  switch(incomingData[0]) {    
+    case MSG_VOLTS_E:
+      memcpy(&myRcvdBatt, incomingData, len);
+      batt_store_batt_volts('E', myRcvdBatt.battvolts, myRcvdBatt.cellvolts, myRcvdBatt.colorcode);
+      break;
+    case MSG_VOLTS_M:
+      memcpy(&myRcvdBatt, incomingData, len);
+      batt_store_batt_volts('M', myRcvdBatt.battvolts, myRcvdBatt.cellvolts, myRcvdBatt.colorcode);
+      memcpy(&myRcvdBatt, incomingData, len);
+      break;
+    case MSG_STAT1:  
+      memcpy(&myRcvdText, incomingData, len);
+      status_save_msg(1, myRcvdText.text, myRcvdText.colorcode);
+      break;
+    case MSG_STAT2:  
+      memcpy(&myRcvdText, incomingData, len);
+      status_save_msg(2, myRcvdText.text, myRcvdText.colorcode);
+      break;
+    case MSG_STAT3:  
+      memcpy(&myRcvdText, incomingData, len);
+      status_save_msg(3, myRcvdText.text, myRcvdText.colorcode);
+      break;
+    case MSG_MENUITEM:  
+      memcpy(&myRcvdText, incomingData, len);
+      status_save_menu_msg(myRcvdText.text, myRcvdText.colorcode);
+      break;
+    default:
+      memcpy(&myRcvdSimple, incomingData, len);
+  }
+   
+  
+}
+
+void setup_wifi_espnow() {   // Set ESP32 as a Wi-Fi Station
+  String myMACs;
+  char myMACc[20];
+  char tmpBuf[24];
+  
+  WiFi.mode(WIFI_STA);
+ 
+  // Initilize ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    //DEBUG_PRINTLN("Error initializing ESP-NOW");
+    return;
+  }
+
+  selectedDeviceIndex = 0;
+ 
+  // Register the send callback
+  esp_now_register_send_cb(OnDataSent);
+  
+  // Register callback function for receiving
+  esp_now_register_recv_cb(OnDataRecv);
+  
+  // Register peer
+  memcpy(peerInfo.peer_addr, deviceAddresses[selectedDeviceIndex], 6);
+  peerInfo.channel = 0;  
+  peerInfo.encrypt = false;
+  
+  // Add peer        
+  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+    return;
+  } 
 }

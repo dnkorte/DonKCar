@@ -13,7 +13,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ * test1
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  * 
@@ -25,19 +25,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE. * 
  */
-#include <Arduino.h>
-#include "config.h"
+#ifndef BATTERY_H
+#define BATTERY_H
 
-#ifndef NUNCHUK_H
-#define NUNCHUK_H
+void batt_init();
+bool batt_read(char battcode);
+void batt_display(char battcode);
+void batt_send(char battcode);
 
-extern int cmdC, cmdZ, cmdX, cmdY;
-extern bool flagC, flagZ, flagX, flagY;
-
-void nunchuk_init();
-bool nunchuk_is_available();
-void nunchuk_process_cmd_from_remote(const uint8_t *incomingData, int len);
-void nunchuk_send_batt(char battcode, char colorcode, float battvolts, float cellvolts);
-void nunchuk_send_text(int rownumber, char colorcode, char * message);
-
-#endif   /* NUNCHUK_H */ 
+#endif  // BATTERY_H

@@ -29,7 +29,7 @@
  * SOFTWARE. * 
  */
 #include "battery.h"
-#include "screen_tft.h"
+#include "status.h"
 
 
 /*
@@ -43,6 +43,20 @@ Adafruit_MAX17048 maxlipo;
 Adafruit_LC709203F lc;
 bool addr0x36 = true;     // indicate we have a 17048 chip
 
+float curEbattvolts, curEcellvolts, curMbattvolts, curMcellvolts, curCbattvolts, currCcellvolts;
+char  curEcolorcode, curMcolorcode, curCcolorcode;   // 'R', 'O', 'Y', 'G', '?'
+int   curEcolorRGB, curMcolorRGB, curCcolorRGB;
+bool  battEdata_is_new, battMdata_is_new;
+
+/*
+ * private function templates
+ */
+float read_my_batt();
+
+/*
+ * public functions
+ */
+ 
 
 void batt_init() {
   /*  
@@ -52,16 +66,13 @@ void batt_init() {
    * https://learn.adafruit.com/esp32-s2-reverse-tft-feather/power-management
    */
   if (!maxlipo.begin()) {
-    DEBUG_PRINTLN(F("Couldnt find Adafruit MAX17048, looking for LC709203F.."));
     // if no lc709203f..
     if (!lc.begin()) {
-      DEBUG_PRINTLN(F("Couldnt find Adafruit MAX17048 or LC709203F."));
       while (1) delay(10);
     }
     // found lc709203f!
     else {
       addr0x36 = false;
-      DEBUG_PRINTLN(F("Found LC709203F"));
       lc.setThermistorB(3950);
       lc.setPackSize(LC709203F_APA_500MAH);
       lc.setAlarmVoltage(3.8);
@@ -69,20 +80,65 @@ void batt_init() {
   // found max17048!
   } else {
     addr0x36 = true;
-    DEBUG_PRINTLN(F("Found MAX17048"));
+  }
+  battEdata_is_new = false;
+  battMdata_is_new = false;
+}
+
+void batt_store_batt_volts(char battcode, float battvolts, float cellvolts, char colorcode) {
+  if (battcode == 'M') {
+    curMbattvolts = battvolts;
+    curMcellvolts = cellvolts;
+    curMcolorcode = colorcode;
+    battMdata_is_new = true;
+  } else {
+    curEbattvolts = battvolts;
+    curEcellvolts = cellvolts;
+    curEcolorcode = colorcode;
+    battEdata_is_new = true;
   }
 }
 
-float read_batt() { 
-  if (addr0x36 == true) {
-    //max17048();
-    return maxlipo.cellVoltage();
+void display_my_mybatt() {  
+  float batt_volts;
+  
+  batt_volts = read_my_batt();
+  if (batt_volts > 3.75) {
+    curCcolorcode = 'G';
+  } else if (batt_volts > 3.5) {
+    curCcolorcode = 'Y';
+  } else if (batt_volts > 3.25) {
+    curCcolorcode = 'O';
+  } else {
+    curCcolorcode = 'R';
   }
-  else {
-    //lc709203f();
-    return lc.cellVoltage();
-  }
+  status_disp_batt_volts('C', batt_volts, batt_volts, curCcolorcode);
+}
 
+
+
+void display_remote_mybatts() {  
+  char tmpBuf[12];
+
+  if (battEdata_is_new) {
+    status_disp_batt_volts('E', curEbattvolts, curEcellvolts, curEcolorcode);    
+    battEdata_is_new = false;
+  }
+  
+  if (battMdata_is_new) {
+    status_disp_batt_volts('M', curMbattvolts, curMcellvolts, curMcolorcode); 
+    battMdata_is_new = false;
+  }
+}
+
+bool batt_has_new_data_ready(char battcode) {
+  if (battcode == 'E') {
+    return battEdata_is_new;
+  }
+  if (battcode == 'M') {
+    return battMdata_is_new;
+  }
+  return false;
 }
 
 
@@ -91,44 +147,29 @@ float read_batt() {
  */
  
 void lc709203f() {
-  Serial.print("Batt_Voltage:");
-  Serial.print(lc.cellVoltage(), 3);
-  Serial.print("\t");
-  Serial.print("Batt_Percent:");
-  Serial.print(lc.cellPercent(), 1);
-  Serial.print("\t");
-  Serial.print("Batt_Temp:");
-  Serial.println(lc.getCellTemperature(), 1);
+  //Serial.print("Batt_Voltage:");
+  //Serial.print(lc.cellVoltage(), 3);
+  //Serial.print("\t");
+  //Serial.print("Batt_Percent:");
+  //Serial.print(lc.cellPercent(), 1);
+  //Serial.print("\t");
+  //Serial.print("Batt_Temp:");
+  //Serial.println(lc.getCellTemperature(), 1);
 }
 
 void max17048() {
-  Serial.print(F("Batt Voltage: ")); Serial.print(maxlipo.cellVoltage(), 3); Serial.println(" V");
-  Serial.print(F("Batt Percent: ")); Serial.print(maxlipo.cellPercent(), 1); Serial.println(" %");
-  Serial.println();
+  //Serial.print(F("Batt Voltage: ")); Serial.print(maxlipo.cellVoltage(), 3); Serial.println(" V");
+  //Serial.print(F("Batt Percent: ")); Serial.print(maxlipo.cellPercent(), 1); Serial.println(" %");
+  //Serial.println();
 }
 
-void display_mybatt() {  
-  float batt_volts;
-  char tmpBuf[12];
-  int myColor = COLOR_WHITE;
-
-  batt_volts = read_batt();
-  if (batt_volts > 3.75) {
-    myColor = COLOR_GREEN;
-  } else if (batt_volts > 3.5) {
-    myColor = COLOR_YELLOW;
-  } else if (batt_volts > 3.25) {
-    myColor = COLOR_ORANGE;
-  } else {
-    myColor = COLOR_RED;
+float read_my_batt() { 
+  if (addr0x36 == true) {
+    //max17048();
+    return maxlipo.cellVoltage();
   }
-  
-  dtostrf(batt_volts, 4, 1, tmpBuf);
-  screen_writeText_colrow(COL_M_BATT_LAB_N+2, ROW_M_BATT1, 5, tmpBuf, myColor);
-  //screen_writeText_colrow(COL_M_BATT_LAB_N+5, ROW_M_BATT1, 1, "v", myColor);
-  
-  dtostrf(batt_volts, 4, 1, tmpBuf);
-  screen_writeText_colrow(COL_M_BATT_LAB_N+2, ROW_M_BATT2, 5, tmpBuf, myColor);
-  //screen_writeText_colrow(COL_M_BATT_LAB_N+5, ROW_M_BATT2, 1, "v", myColor);
-  screen_show();
+  else {
+    //lc709203f();
+    return lc.cellVoltage();
+  }
 }
