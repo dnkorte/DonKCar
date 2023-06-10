@@ -69,139 +69,154 @@
   if the interrupt changes a multi-byte variable between a sequence of instructions, it can be read incorrectly.
   If your data is multiple variables, such as an array and a count, usually interrupts need to be disabled
   or the entire sequence of your code which accesses the data.
+
+
+  for PCA9685 use Adafruit PCS9685 module
+  https://www.adafruit.com/product/815
+  https://learn.adafruit.com/16-channel-pwm-servo-driver
+  
  ****************************************************************************************************************************
 */
 
 int servoSteering, servoThrottle;
 
-#ifdef SERVO_NATIVE_ESP32S2
-#include "ESP32_S2_ISR_Servo.h"
-
-// Select different ESP32 timer number (0-3) to avoid conflict
-#define USE_ESP32_TIMER_NO          3   // orig 3
-
-#define TIMER_INTERRUPT_DEBUG       0
-#define ISR_SERVO_DEBUG             0
-
-
-
 /*
  * ************************************************************************
- * private functions  SERVO_NATIVE_ESP32S2
  * ************************************************************************
- */ 
-
-/*
- * the raw servo driver always accepts angle of 0-180  
+ * ************************************************************************
+ * ***** if using Native ESP32-S2 timer functions *************************
+ * ************************************************************************
+ * ************************************************************************
+ * ************************************************************************
  */
-void set_angle(int servoIndex, uint16_t angle) {
-  uint16_t myAngle;
-
-  myAngle = angle;
-  ESP32_ISR_Servos.setPosition(servoIndex, myAngle);
-}
-
-/*
- * sets pulse width; note that a 50 Hz update rate is assumed (20 mS)
- *  @param pulseWidth is duration in microseconds
- */
-void set_pulsewidth(int servoIndex, uint16_t pulseWidth) {
-  uint16_t myPosition;
-
-  myPosition = pulseWidth;
-  ESP32_ISR_Servos.setPulseWidth(servoIndex, myPosition);
-}
-
-/*
- * ************************************************************************
- * public functions  SERVO_NATIVE_ESP32S2
- * ************************************************************************
- */ 
-void servo_init(void) {
-  int temp;
-  
-  //Select ESP32 timer USE_ESP32_TIMER_NO
-  ESP32_ISR_Servos.useTimer(USE_ESP32_TIMER_NO);  
-  servoSteering = ESP32_ISR_Servos.setupServo(PIN_SERVO_STEER, SERVO_MIN_MICROS, SERVO_MAX_MICROS);
-  servoThrottle = ESP32_ISR_Servos.setupServo(PIN_SERVO_THROT, SERVO_MIN_MICROS, SERVO_MAX_MICROS); 
-  servo_disable_servos();
-}
-
- void servo_enable_servos() {
-  ESP32_ISR_Servos.enable(servoSteering);
-  ESP32_ISR_Servos.enable(servoThrottle);
- }
  
- void servo_disable_servos() {
-  ESP32_ISR_Servos.disable(servoSteering);
-  ESP32_ISR_Servos.disable(servoThrottle);
- }
+#ifdef SERVO_NATIVE_ESP32S2
+  #include "ESP32_S2_ISR_Servo.h"
+  
+  // Select different ESP32 timer number (0-3) to avoid conflict
+  #define USE_ESP32_TIMER_NO          3   // orig 3
+  
+  #define TIMER_INTERRUPT_DEBUG       0
+  #define ISR_SERVO_DEBUG             0
+  
+  /*
+   * ************************************************************************
+   * private functions  SERVO_NATIVE_ESP32S2
+   * ************************************************************************
+   */ 
+  
+  /*
+   * sets pulse width; note that a 50 Hz update rate is assumed (20 mS)
+   *  @param pulseWidth is duration in microseconds
+   */
+  void set_pulsewidth(int servoIndex, uint16_t pulseWidth) {
+    uint16_t myPosition;
+  
+    myPosition = pulseWidth;
+    ESP32_ISR_Servos.setPulseWidth(servoIndex, myPosition);
+  }
+  
+  /*
+   * ************************************************************************
+   * public functions  SERVO_NATIVE_ESP32S2
+   * ************************************************************************
+   */ 
+  void servo_init(void) {
+    int temp;
+    
+    //Select ESP32 timer USE_ESP32_TIMER_NO
+    ESP32_ISR_Servos.useTimer(USE_ESP32_TIMER_NO);  
+    servoSteering = ESP32_ISR_Servos.setupServo(PIN_SERVO_STEER, SERVO_MIN_MICROS, SERVO_MAX_MICROS);
+    servoThrottle = ESP32_ISR_Servos.setupServo(PIN_SERVO_THROT, SERVO_MIN_MICROS, SERVO_MAX_MICROS); 
+    servo_disable_servos();
+  }
+  
+   void servo_enable_servos() {
+    ESP32_ISR_Servos.enable(servoSteering);
+    ESP32_ISR_Servos.enable(servoThrottle);
+   }
+   
+   void servo_disable_servos() {
+    ESP32_ISR_Servos.disable(servoSteering);
+    ESP32_ISR_Servos.disable(servoThrottle);
+   }
 #endif  // SERVO_NATIVE_ESP32S2
 
+/*
+ * ************************************************************************
+ * ************************************************************************
+ * ************************************************************************
+ * ***** if using PCA9685 16-channel PWM board ****************************
+ * ************************************************************************
+ * ************************************************************************
+ * ************************************************************************
+ */
 
-
-
+/*
+ * ************************************************************************
+ * private functions  SERVO_PCA9685
+ * ************************************************************************
+ */ 
 
 #ifdef SERVO_PCA9685
-#include <Wire.h>
-#include <Adafruit_PWMServoDriver.h>
-
-// called this way, it uses the default address 0x40
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
-
-// Depending on your servo make, the pulse width min and max may vary, you 
-// want these to be as small/large as possible without hitting the hard stop
-// for max range. You'll have to tweak them as necessary to match the servos you
-// have!
-
-#define SERVOMIN  150 // This is the 'minimum' pulse length count (out of 4096)
-#define SERVOMAX  600 // This is the 'maximum' pulse length count (out of 4096)
-#define USMIN  600 // This is the rounded 'minimum' microsecond length based on the minimum pulse of 150
-#define USMAX  2400 // This is the rounded 'maximum' microsecond length based on the maximum pulse of 600
-#define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
-
-// our servo # counter
-uint8_t servonum = 0;
-
-
-
-void servo_init() {  
+  #include <Wire.h>
+  #include <Adafruit_PWMServoDriver.h>
   
-  servoSteering = 1;
-  servoThrottle = 0;
+  // called this way, it uses the default address 0x40
+  //Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+  // you can also call it with a different address and I2C interface
+  Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40, Wire);
   
-  pwm.begin();
-  pwm.setOscillatorFrequency(27000000);
-  pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates  
-  servo_disable_servos();
-
-  delay(10);
-}
-
- void servo_enable_servos() {
-  // nothing here
- }
- 
- void servo_disable_servos() {
-  // nothing here
- }
-
-/*
- * sets pulse width; note that a 50 Hz update rate is assumed (20 mS)
- *  @param pulseWidth is duration in microseconds
- */
-void set_pulsewidth(int servoIndex, uint16_t microsec) {  
-  pwm.writeMicroseconds(servoIndex, microsec);
-}
-
+  #define SERVO_FREQ 50 // Analog servos run at ~50 Hz updates
+  
+  /*
+   * ************************************************************************
+   * public functions  SERVO_PCA9685
+   * ************************************************************************
+   */ 
+  void servo_init() {    
+    servoThrottle = 0;
+    servoSteering = 1;
+    
+    pwm.begin();
+    pwm.setOscillatorFrequency(27000000);
+    pwm.setPWMFreq(SERVO_FREQ);  // Analog servos run at ~50 Hz updates  
+    servo_disable_servos();
+    delay(10);
+  }
+  
+   void servo_enable_servos() {
+    // nothing here
+   }
+   
+   void servo_disable_servos() {
+    // nothing here
+   }
+  
+  /*
+   * sets pulse width; note that a 50 Hz update rate is assumed (20 mS)
+   *  @param pulseWidth is duration in microseconds
+   */
+  void set_pulsewidth(int servoIndex, uint16_t microsec) {  
+    pwm.writeMicroseconds(servoIndex, microsec);
+    
+    //pwm.writeMicroseconds(servoIndex, microsec);
+    //uint16_t fakeout;
+    //fakeout = microsec / 5;
+    //pwm.setPWM(servoIndex, 0, fakeout);
+  }
 #endif // SERVO_PCA9685
 
+
 /*
  * ************************************************************************
- * public functions - regardless of which driver is used
+ * ************************************************************************
+ * ************************************************************************
+ * ***** public functions - regardless of which driver is used ************
+ * ************************************************************************
+ * ************************************************************************
  * ************************************************************************
  */
-
 /*
  * @param value:  -255 full left, 0 center, +255 full right
  * (dnk note calculations confirmed, proper PW is used for angles)

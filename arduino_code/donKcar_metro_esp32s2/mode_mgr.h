@@ -59,5 +59,6 @@ void mode_menu_itemselect();
 void mode_check_webap_heartbeat();
 void mode_notice_webap_heartbeat(void);
 void mode_init_webap_heartbeat();
+void mode_got_msg_blobs1(int16_t steer_angle, int16_t measured_angle);
 
 #endif   /* MODE_H */ 

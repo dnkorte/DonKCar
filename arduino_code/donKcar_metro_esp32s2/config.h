@@ -121,21 +121,25 @@ extern Config config;
 
 /*
  * *******************************************************************
- * ******************************************************************* * 
+ * ******************************************************************* 
+ * ******************************************************************* 
  * Hardware PINS and "board usage" configuration
  * the items below are compiled-in constants that are "static" 
  * in the sense that they define hardware pins that are not 
  * typically changed "on the fly" so do not need to be in the user
  * changeable configuration flash
  * *******************************************************************
+ * ******************************************************************* 
  * *******************************************************************
  */
  
-//#define SERVO_PCA9685
-#define SERVO_NATIVE_ESP32S2 
-
-#define SERVO_MIN_MICROS      500  // was 800
-#define SERVO_MAX_MICROS      2700 // was 2450
+/*
+ * *******************************************************************
+ * ******************************************************************* 
+ *   RC Chassis configuration - using PWM signals for throt & steer
+ * ******************************************************************* 
+ * *******************************************************************
+ */
 
 #ifdef FLAVOR_RC
   #define PIN_SD_CS   14
@@ -167,8 +171,23 @@ extern Config config;
   #define PIN_VBAT_M_CHK 2   // A3 (note this is on ADC1, so it can be used freely
   #define PIN_SERVO_STEER 5  // 42
   #define PIN_SERVO_THROT 21  // 21
+   
+  #define SERVO_PCA9685
+  //#define SERVO_NATIVE_ESP32S2 
+  
+  #define SERVO_MIN_MICROS      500  // was 800
+  #define SERVO_MAX_MICROS      2700 // was 2450
 #endif  // FLAVOR_RC
 
+ 
+/*
+ * *******************************************************************
+ * ******************************************************************* 
+ *   Differential steering configuration; 2 DC motors to drive 
+ * ******************************************************************* 
+ * *******************************************************************
+ */
+ 
 #ifdef FLAVOR_DIFFERENTIAL
   #define PIN_SD_CS   21
   #define PIN_CAM_CS  5

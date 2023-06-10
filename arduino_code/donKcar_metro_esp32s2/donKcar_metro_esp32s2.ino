@@ -35,7 +35,8 @@
 #include "drivetrain.h"
 #include "nunchuk.h"
 #include "battery.h"
-#include "serial_com_esp32.h"
+#include "cam.h"
+//#include "serial_com_esp32.h"
 
 long nextBattDispDue_E, nextBattDispDue_M;
 long nextBattSendDue_E, nextBattSendDue_M;
@@ -82,7 +83,7 @@ void setup() {
   
   nextTestDue = millis() + 230;
   testFlavor = 0;   // currently no camera polls
-  sercom1_init();
+  cam_init();
   
   mode_set_mode(MODE_IDLE); 
 }
@@ -165,25 +166,27 @@ void loop() {
     mode_check_menu_timeout();   // check for menu timeouts
   }
 
-  if (current_time > nextCam1QueryDue)  {
-    if (testFlavor == 1) {
-      for (int ii=0; ii<10; ii++) {
-        sercom1_sendchar('c');
-      }
-    }
-    nextCam1QueryDue = millis() + 250;
-  }
+  //if (current_time > nextCam1QueryDue)  {
+  //  if (testFlavor == 1) {
+  //    for (int ii=0; ii<10; ii++) {
+  //      sercom1_sendchar('c');
+  //    }
+  //  }
+  //  nextCam1QueryDue = millis() + 250;
+  //}
   
-  if (current_time > nextTestDue) {
-    if (testFlavor == 0) {
-      testFlavor = 1;
-      status_disp_simple_msg("Sending Cam Test", 'G');
-    } else {
-      testFlavor = 0;
-      status_disp_simple_msg("Not Sending Cam", 'Y');
-    }
-    nextTestDue = millis() + 10000;
-  }
+  //if (current_time > nextTestDue) {
+  //  if (testFlavor == 0) {
+  //    testFlavor = 1;
+  //    status_disp_simple_msg("Sending Cam Test", 'G');
+  //  } else {
+  //    testFlavor = 0;
+  //    status_disp_simple_msg("Not Sending Cam", 'Y');
+  //  }
+  //  nextTestDue = millis() + 10000;
+  //}
+  
+  cam_loop();
   
   //delay(5);
 }

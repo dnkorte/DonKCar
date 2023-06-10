@@ -44,6 +44,7 @@ int menu_downcounter;
 int webap_downcounter;
 int menu_index;
 bool but_C_status, but_Z_status;  // true = pressed, false = not pressed
+int16_t current_steer_angle, last_steer_angle;
 
 int cmd_joyX, cmd_joyY;    // as-commanded values
 
@@ -76,6 +77,8 @@ void mode_init(void) {
   lastMode = 0;
   but_C_status = false;
   but_Z_status = false;
+  current_steer_angle = 0;
+  last_steer_angle = 0;
 }
 
 void mode_notice_heartbeat(void) {
@@ -257,6 +260,26 @@ void mode_joyY_event(int myValue) {
   }
   if (curMode == MODE_MANUAL2) { 
     // ignore joystick Y events in MODE_MANUAL2
+  }
+}
+
+void mode_got_msg_blobs1(int16_t steer_angle, int16_t measured_angle) {
+  if (curMode == MODE_AUTO) { 
+    if (abs(steer_angle - current_steer_angle) > 3) {
+      DEBUG_PRINT("auto mode steer:");
+      DEBUG_PRINT(steer_angle);
+      DEBUG_PRINT(" last steer:");
+      DEBUG_PRINTLN(last_steer_angle);
+      last_steer_angle = current_steer_angle;
+      current_steer_angle = steer_angle;
+      status_disp_simple_msg(String(current_steer_angle), 'Y');
+      
+      if (but_Z_status) {    
+        cmd_joyX = current_steer_angle;  
+        cmd_joyY = config.manual_speed_normal;
+        drivetrain_go(cmd_joyY, cmd_joyX);        
+      }
+    }
   }
 }
 
