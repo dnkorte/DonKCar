@@ -32,7 +32,7 @@
  * SOFTWARE.
  */
 
-part_to_print="backplate";  // [ "box", "lid", "box_for_feather 1200", "box_for_feather 500", "lid for feather", "backplate", "backplate AA", "beltclip", "battbox_lid 500", "battbox_lid 1200", "test" ]
+part_to_print="backplate";  // [ "box", "lid", "box_for_feather 1200", "box_for_feather 500", "lid for feather", "lid with Nunchuk hanger", "Nunchuk Hanger plate", "backplate", "backplate AA", "beltclip", "battbox_lid 500", "battbox_lid 1200", "test" ]
 
 draw_part();
 
@@ -59,13 +59,13 @@ module draw_part() {
         lid();
     } else if (part_to_print == "lid for feather") {
         lid_feather();
+    } else if (part_to_print == "lid with Nunchuk hanger") {
+        lid_feather("Y");
+    } else if (part_to_print == "Nunchuk Hanger plate") {
+        nunchuk_hanger_plate();
     } else if (part_to_print == "test") {
-        difference() {
-            component_reverse_feather(mode="adds");
-            component_reverse_feather(mode="holes");
-        }
-        //component_reverse_feather(mode="adds");
-        //part_oled_bezel();
+        translate([ 0, 0, 2 ]) nunchuk_hanger();
+        roundedbox(50, 50, 3, 2);
     }
 }
 
@@ -78,6 +78,7 @@ feather_box_length = 80;
 feather_box_width = 85;
 feather_plate_width = 120;
 feather_box_height = 35;
+hanger_mount_sep = 42;
 
 plate_thick = 3;
 wall_thick = 5;
@@ -298,7 +299,7 @@ module lid() {
     translate([ -10, -(box_width/2)+25, 0 ])  component_oled_bezel("adds");
 }
 
-module lid_feather() {   
+module lid_feather(want_hanger_plate = "Y") {   
     difference() {
 
         union() {
@@ -310,7 +311,12 @@ module lid_feather() {
              * here enter all the parts that are added to the lid
              ************************************************************************
              */
-            // nothing to add
+            if (want_hanger_plate == "Y") {
+                translate([ -hanger_mount_sep/2, -(hanger_mount_sep/2)+8, 2 ]) cylinder(d=TI30_mount_diameter, h=TI30_default_height);
+                translate([ -hanger_mount_sep/2, (hanger_mount_sep/2)+8, 2 ]) cylinder(d=TI30_mount_diameter, h=TI30_default_height);
+                translate([ hanger_mount_sep/2, -(hanger_mount_sep/2)+8, 2 ]) cylinder(d=TI30_mount_diameter, h=TI30_default_height);
+                translate([ hanger_mount_sep/2, (hanger_mount_sep/2)+8, 2 ]) cylinder(d=TI30_mount_diameter, h=TI30_default_height);
+            }
         }
         
         /*
@@ -318,7 +324,12 @@ module lid_feather() {
          * here enter all the parts that are removed from the lid
          ************************************************************************
          */
-        // nothing to remove
+        if (want_hanger_plate == "Y") {
+            translate([ -hanger_mount_sep/2, -(hanger_mount_sep/2)+8, -0.1 ]) cylinder(d=TI30_through_hole_diameter, h=TI30_default_height+2.2);
+            translate([ -hanger_mount_sep/2, (hanger_mount_sep/2)+8, -0.1 ]) cylinder(d=TI30_through_hole_diameter, h=TI30_default_height+2.2);
+            translate([ hanger_mount_sep/2, -(hanger_mount_sep/2)+8, -0.1 ]) cylinder(d=TI30_through_hole_diameter, h=TI30_default_height+2.2);
+            translate([ hanger_mount_sep/2, (hanger_mount_sep/2)+8, -0.1 ]) cylinder(d=TI30_through_hole_diameter, h=TI30_default_height+2.2);
+        }
     }
 }
 
@@ -515,3 +526,15 @@ module component_oled_bezel_mount_hole(mode="holes", thick=8) {
     }
 }
 
+module nunchuk_hanger_plate() {
+    mounting_plate_size = 50;
+
+    difference() {
+        roundedbox(mounting_plate_size, mounting_plate_size, 3, 2);
+        translate([ -hanger_mount_sep/2, -hanger_mount_sep/2, -0.1 ]) cylinder(d=4, h=2.2);
+        translate([ -hanger_mount_sep/2, hanger_mount_sep/2, -0.1 ]) cylinder(d=4, h=2.2);
+        translate([ hanger_mount_sep/2, -hanger_mount_sep/2, -0.1 ]) cylinder(d=4, h=2.2);
+        translate([ hanger_mount_sep/2, hanger_mount_sep/2, -0.1 ]) cylinder(d=4, h=2.2);
+    }
+    translate([ 0, 0, 2 ]) nunchuk_hanger();
+}

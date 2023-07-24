@@ -25,36 +25,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE. * 
  */
-#ifndef UTIL_H
-#define UTIL_H
+#ifndef WEB_PAGES_BLOBS_H
+#define WEB_PAGES_BLOBS_H
 
 #include <Arduino.h>
 #include "config.h"
 
-void util_disable_all_spi();
-void util_enable_my_spi(int pin_number);
+bool webap_build_cam_blobs(String header);
+String webap_process_API_cam_blobs(String header);
 
-void set_status(String newStatus, int color);
-void indicateActivityForStatus();
 
-int readAnalog5xAveraged(int pin);
-
-/*
- * test if String is numeric
- * from: https://forum.processing.org/two/discussion/23275/determine-if-a-string-is-numeric-only-int-not-float-but-minus-sign-allowed.html
- * call: bool status = isNumeric("-1234");
- * 
- * if it is proper numeric, can convert to int by   myIntVar = myStringVar.toInt();
- */
-boolean isNumeric(String testWord);
-boolean isInteger(String testString);
-/*
- * test if String is reasonable float value
- * from: https://forum.pjrc.com/threads/34705-Arduino-String-How-to-identify-valid-float
- * call: bool status = isNumeric("-1234");
- * 
- * if it is reasonable float, can convert to float by   myFloatVar = myStringVar.toFloat();
- */
-boolean isFloat(String testString);
-
-#endif   // UTIL_H
+#endif // WEB_PAGES_BLOBS_H

@@ -32,8 +32,12 @@
 #include "webap_pages_throt_rc.h"
 #include "webap_pages_batt.h"
 #include "webap_pages_util.h"
+#include "webap_pages_cam_general.h"
+#include "webap_pages_cam_blobs.h"
+#include "webap_pages_cam_pid.h"
 #include "mode_mgr.h"
 #include "status.h"
+#include "cam.h"
 
 
 /*
@@ -58,6 +62,9 @@ WiFiServer serverAP(80);
 WiFiClient clientAP;
 
 String pageBuf;   // global variable that page builders put new pages in
+bool webap_allow_page_close;  // special flag to allow pages that re-enter (ie img_camera)
+bool in_a_build_waiting_for_cam_to_continue_v1 = false;
+
 
 /*
  * *********************************************
@@ -107,6 +114,7 @@ void webap_init(void) {
   wifi_deinit();
   webModeActive = true;
   webModeEndRequest = false;
+  in_a_build_waiting_for_cam_to_continue_v1 = false;
   serverAP.begin();           // start http server
 }
 
@@ -145,7 +153,13 @@ void webap_adjustWebEndRequest(bool newValue) {
  */
 void webap_process(void) {
   String actionResponseStatus;
-  String myPageBuf;
+
+  if (in_a_build_waiting_for_cam_to_continue_v1) {
+    // note this does nothing if pic isn't yet ready; 
+    // if pic is ready it finishes building the page then sends it, then clears waiting flag
+    webap_util_finish_cam();
+    return;
+  }
   
   clientAP = serverAP.available();   // Listen for incoming clients
   headerX = "";
@@ -166,7 +180,9 @@ void webap_process(void) {
           // but must evaluate the page first (if its a display page) to see if any user errors
           
           if (currentLine.length() == 0) {     
-                   
+
+            webap_allow_page_close = true;
+            in_a_build_waiting_for_cam_to_continue_v1 = false;
             if (headerX.indexOf("/wcmd/") >= 0) {
               actionResponseStatus = webap_process_API(headerX);                  
               // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
@@ -189,8 +205,7 @@ void webap_process(void) {
               // The HTTP response ends with another blank line
               clientAP.println();
               webap_build_web_page(headerX);
-              clientAP.println(pageBuf);
-              actionResponseStatus = true;                              
+              clientAP.println(pageBuf);           
             } 
             
             // Break out of the while loop          
@@ -203,17 +218,28 @@ void webap_process(void) {
         }
       }
     }
-    // Clear the header variable
-    headerX = "";
-    // Close the connection
-    clientAP.stop();
+    if (webap_allow_page_close) {
+      webap_closeout_client();
+    }
   }
 }
+
 
 /*
  * public functions -- helpers for page build
  * (for use by webap_XXX page builders)
  */
+ 
+void webap_print_pageBuf() {
+  clientAP.println(pageBuf);
+}
+
+void webap_closeout_client() {
+  // Clear the header variable
+  headerX = "";
+  // Close the connection
+  clientAP.stop();
+}
 
 String webap_start_local_js(void) {
   String obuf = "";
@@ -273,7 +299,7 @@ String show_menu(void) {
   pageBuf = pageBuf + "<table>\n";
   pageBuf = pageBuf + "<tr>\n";
     pageBuf = pageBuf + "<td class='menu tan'><a href=\"/getcfg.html\">Show Config JSON</a></td>\n";
-    pageBuf = pageBuf + "<td class='menu green'><a href=\"/steer.html\">Steering Config</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu ltblue'><a href=\"/steer.html\">Steering Config</a></td>\n";
     pageBuf = pageBuf + "<td class='menu ltblue'><a href=\"/steer_sweeps.html\">Steering Sweeps</a></td>\n";
   pageBuf = pageBuf + "</tr>\n";
 
@@ -282,18 +308,24 @@ String show_menu(void) {
   pageBuf = pageBuf + "<tr>";
     pageBuf = pageBuf + "<td class='menu green'><a href=\"/battE.html\">Batt E Config</a></td>\n";
     pageBuf = pageBuf + "<td class='menu green'><a href=\"/battM.html\">Batt M Config</a></td>\n";
-    pageBuf = pageBuf + "<td class='menu green'><a href=\"/identity.html\">Identity</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu seagreen lightlink'><a href=\"/identity.html\">Identity</a></td>\n";
   pageBuf = pageBuf + "</tr>\n";
   
   pageBuf = pageBuf + "<tr>";
-    pageBuf = pageBuf + "<td class='menu green'><a href=\"/throt.html\">Throttle Config</a></td>\n";
-    pageBuf = pageBuf + "<td class='menu green'><a href=\"/esc.html\">ESC Config</a></td>\n";
-    pageBuf = pageBuf + "<td class='menu green'>&nbsp;</td>\n";
+    pageBuf = pageBuf + "<td class='menu darkblue lightlink'><a href=\"/throt.html\">Throttle Config</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu purple lightlink'><a href=\"/esc.html\">ESC Config</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu gold'><a href=\"/cam_image.html\">View Camera</a></td>\n";
+  pageBuf = pageBuf + "</tr>\n";
+  
+  pageBuf = pageBuf + "<tr>";
+    pageBuf = pageBuf + "<td class='menu gold'><a href=\"/cam_general.html\">Cam General</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu gold'><a href=\"/cam_blobs.html\">Cam Blobs</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu gold'><a href=\"/xxx.html\">Cam Lines</a></td>\n";
   pageBuf = pageBuf + "</tr>\n";
     
   pageBuf = pageBuf + "<tr>\n";
-    pageBuf = pageBuf + "<td class='menu pink' colspan='2'><a href=\"/bye.html\">EXIT CONFIGURATOR</a></td>\n";
-    pageBuf = pageBuf + "<td class='menu gold'><a href=\"/index.html\">HOME</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu crimson lightlink' colspan='2'><a href=\"/bye.html\">EXIT CONFIGURATOR</a></td>\n";
+    pageBuf = pageBuf + "<td class='menu gold'><a href=\"/cam_pid.html\">PID</a></td>\n";
   pageBuf = pageBuf + "</tr>\n";
   pageBuf = pageBuf + "</table>\n";
 
@@ -356,9 +388,12 @@ String show_mycss(void) {
   pageBuf = pageBuf + ".btnLtGreen { background-color:#7fffd4; color:#000; }\n";
   pageBuf = pageBuf + ".btnLtViolet { background-color:#dda0dd; color:#000; }\n";
   
-  pageBuf = pageBuf + "table { margin-top: 12px;}\n";
+  pageBuf = pageBuf + "table { margin-top: 12px; width:450px; max-width:450px; }\n";
   pageBuf = pageBuf + "td.menu { border: 1px solid; padding: 6px; text-align:center; }\n";
+  pageBuf = pageBuf + "a:link, a:visited { text-decoration: none; }\n";
+  pageBuf = pageBuf + "td.lightlink a:link, td.lightlink a:visited { color: #ffffff }\n";
   pageBuf = pageBuf + "td.matrix { border: 0px solid; padding: 6px; text-align:center;}\n";
+  pageBuf = pageBuf + "td.left { text-align:left; }\n";
   pageBuf = pageBuf + "td.green { background-color:#7fffd4; border: 1px solid; }\n";
   pageBuf = pageBuf + "td.pink { background-color:#ffb6c1; border: 1px solid; }\n";
   pageBuf = pageBuf + "td.gold { background-color:#ffd700; border: 1px solid; }\n";
@@ -366,9 +401,12 @@ String show_mycss(void) {
   pageBuf = pageBuf + "td.ltblue { background-color:#87cefa; border: 1px solid; }\n";
   pageBuf = pageBuf + "td.seagreen { background-color:#2e8b57; border: 1px solid; }\n";
   pageBuf = pageBuf + "td.tan { background-color:#d2b48c; border: 1px solid; }\n";
+  pageBuf = pageBuf + "td.darkblue { background-color:#4169e1; border: 1px solid; }\n";
+  pageBuf = pageBuf + "td.purple { background-color:#da70d6; border: 1px solid; }\n";
+  pageBuf = pageBuf + "td.crimson { background-color:#dc143c; border: 1px solid; }\n";
   
   pageBuf = pageBuf + "a { display:block; text-decoration:none; }\n";
-  pageBuf = pageBuf + "p { width:480px; max-width:480px; }\n";
+  pageBuf = pageBuf + "p { width:450px; max-width:450px; }\n";
 
   pageBuf = pageBuf + "</style>\n";
   return pageBuf;
@@ -407,6 +445,21 @@ String webap_process_API(String header) {
   if (api_response != "NOMATCH") {
     return api_response;
   } 
+   
+  api_response = webap_process_API_cam_blobs(header);
+  if (api_response != "NOMATCH") {
+    return api_response;
+  } 
+   
+  api_response = webap_process_API_cam_general(header);
+  if (api_response != "NOMATCH") {
+    return api_response;
+  } 
+   
+  api_response = webap_process_API_cam_pid(header);
+  if (api_response != "NOMATCH") {
+    return api_response;
+  }
 
   /*
    * API function for processing Web Browser Heartbeat signal
@@ -433,6 +486,15 @@ void webap_build_web_page(String header) {
    if (webap_build_throt(header)) {
     return;
    }
+   if (webap_build_cam_blobs(header)) {
+    return;
+   }
+   if (webap_build_cam_general(header)) {
+    return;
+   }
+   if (webap_build_cam_pid(header)) {
+    return;
+   }
   
   /* 
    * if none of the above match, then check for basic utility pages
@@ -440,4 +502,91 @@ void webap_build_web_page(String header) {
    * only the default index.html
    */  
     webap_build_util(header);
+}
+
+
+/**
+ * queryString: the string with is to be parsed.
+ * WARNING! This function overwrites the content of this string. Pass this function a copy
+ * if you need the value preserved.
+ * results: place to put the pairs of param name/value.
+ * resultsMaxCt: maximum number of results, = sizeof(results)/sizeof(*results)
+ * decodeUrl: if this is true, then url escapes will be decoded as per RFC 2616
+ * 
+ * Note this function from https://forum.arduino.cc/t/url-querystring-parsing-and-decoding/308833
+ */
+
+int webap_parseUrlParams(char *queryString, char *results[][2], int resultsMaxCt, boolean decodeUrl) {
+  int ct = 0;
+
+  while (queryString && *queryString && ct < resultsMaxCt) {
+    results[ct][0] = strsep(&queryString, "&");
+    results[ct][1] = strchrnul(results[ct][0], '=');
+    if (*results[ct][1]) *results[ct][1]++ = '\0';
+
+    if (decodeUrl) {
+      webap_percentDecode(results[ct][0]);
+      webap_percentDecode(results[ct][1]);
+    }
+
+    ct++;
+  }
+
+  return ct;
+}
+
+/**
+ * Perform URL percent decoding.
+ * Decoding is done in-place and will modify the parameter.
+ * 
+ * Note this function from https://forum.arduino.cc/t/url-querystring-parsing-and-decoding/308833
+ */
+
+void webap_percentDecode(char *src) {
+  char *dst = src;
+
+  while (*src) {
+    if (*src == '+') {
+      src++;
+      *dst++ = ' ';
+    }
+    else if (*src == '%') {
+      // handle percent escape
+
+      *dst = '\0';
+      src++;
+
+      if (*src >= '0' && *src <= '9') {
+        *dst = *src++ - '0';
+      }
+      else if (*src >= 'A' && *src <= 'F') {
+        *dst = 10 + *src++ - 'A';
+      }
+      else if (*src >= 'a' && *src <= 'f') {
+        *dst = 10 + *src++ - 'a';
+      }
+
+      // this will cause %4 to be decoded to ascii @, but %4 is invalid
+      // and we can't be expected to decode it properly anyway
+
+      *dst <<= 4;
+
+      if (*src >= '0' && *src <= '9') {
+        *dst |= *src++ - '0';
+      }
+      else if (*src >= 'A' && *src <= 'F') {
+        *dst |= 10 + *src++ - 'A';
+      }
+      else if (*src >= 'a' && *src <= 'f') {
+        *dst |= 10 + *src++ - 'a';
+      }
+
+      dst++;
+    }
+    else {
+      *dst++ = *src++;
+    }
+
+  }
+  *dst = '\0';
 }

@@ -97,11 +97,10 @@ void status_disp_mainpage_skeleton(void);
 void status_disp_clear_status_area();
 
 void status_neo_send(int cmd, int param);
-void status_neo_show_steering_info(int cmd_joyX);
-void status_neo_show_steering_info(int cmd_joyX, bool forcedisplay);
-void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX);
-void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX, bool forcedisplay);
+void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX, char ctrColor);
+void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX, char ctrColor, bool forcedisplay);
 void status_neo_show_menu_psn6(int slot, int color);
 void status_neo_show_menu_psn5(int slot, int color);
+void status_message_area_clear_check();
 
 #endif  // STATUS_H

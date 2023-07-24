@@ -55,7 +55,15 @@ String webap_start_local_js(void);
 String webap_end_local_js(void);
 String webap_commonJS(void);
 
+void webap_print_pageBuf();
+void webap_closeout_client();
+
 String show_menu(void);
 String show_mycss(void);
+
+// the following 2 functions are from:
+// https://forum.arduino.cc/t/url-querystring-parsing-and-decoding/308833
+int webap_parseUrlParams(char *queryString, char *results[][2], int resultsMaxCt, boolean decodeUrl);
+void webap_percentDecode(char *src);
 
 #endif  // WEBAP_CORE_H

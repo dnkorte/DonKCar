@@ -33,5 +33,6 @@
 
 void webap_build_util(String header);
 String webap_process_API_util(String header);
+void webap_util_finish_cam();
 
 #endif // WEB_PAGES_UTIL_H

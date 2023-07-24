@@ -66,6 +66,7 @@ long current_time;
 long lastHeartbeatMsg;  
 long nextBattDispDue;
 long nextHeartbeat;
+long nextStatusMessageClearCheck;
 
 Nunchuk nchuk;
 
@@ -140,6 +141,7 @@ void setup() {
   
   nextHeartbeat = millis() + HEARTBEAT_INTERVAL;
   nextBattDispDue = millis() + 20;
+  nextStatusMessageClearCheck = millis() + 263;
   
   batt_init();
   status_main_structure();    
@@ -310,6 +312,16 @@ void loop() {
 
   // display any new status messages or menu lines that came in over espnow
   status_display_mainscreen_messages();
+  
+
+  /* 
+   *  implement "clear status message" process after appropriate timeouts
+   *  (note messages time out after 30 seconds)
+   */
+  if (current_time > nextStatusMessageClearCheck) {
+    nextStatusMessageClearCheck = current_time + 100;
+    status_message_area_clear_check();   // check for menu timeouts
+  }
 
   delay(50);
 }

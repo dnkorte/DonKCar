@@ -60,7 +60,7 @@ bool webap_build_batt(String header) {
       pageBuf = pageBuf + "<table>\n";
       
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Battery Used</td>\n";          
+          pageBuf = pageBuf + "<td class='matrix left'>Battery Used</td>\n";          
           pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_beu' id='sel_beu'>\n"; 
             pageBuf = pageBuf + "<option value=0"; 
             if (!config.batt_E_used) {
@@ -79,7 +79,7 @@ bool webap_build_batt(String header) {
        
       
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Shutdown on Red?</td>\n";            
+          pageBuf = pageBuf + "<td class='matrix left'>Shutdown on Red?</td>\n";            
           pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_bes' id='sel_bes'>\n"; 
             pageBuf = pageBuf + "<option value=0"; 
             if (!config.batt_E_shutdown_on_red) {
@@ -98,7 +98,7 @@ bool webap_build_batt(String header) {
         
       
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Num of Cells</td>\n";            
+          pageBuf = pageBuf + "<td class='matrix left'>Num of Cells</td>\n";            
           pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_benc' id='sel_benc'>\n"; 
             pageBuf = pageBuf + "<option value=0"; 
             if (config.batt_E_numcells == 1) {
@@ -125,19 +125,19 @@ bool webap_build_batt(String header) {
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Min V GREEN</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Min V GREEN</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_vgreen' value='" + config.batt_E_min_green + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveMinGreen();\">Update</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Min V YELLOW</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Min V YELLOW</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_vyellow' value='" + config.batt_E_min_yellow + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveMinYellow();\">Update</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Min V ORANGE</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Min V ORANGE</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_vorange' value='" + config.batt_E_min_orange + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveMinOrange();\">Update</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
@@ -150,14 +150,14 @@ bool webap_build_batt(String header) {
           int vbat_raw = analogRead(PIN_VBAT_E_CHK);
           float batt_volts = (config.batt_E_scale * vbat_raw) / 1000.0; 
           //dtostrf(batt_volts, 5, 2, tmpBuf);          
-          pageBuf = pageBuf + "<td class='matrix'>Measured Volts</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Measured Volts</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><span id='disp_vmeas'>" + String(batt_volts, 2) + "</span></td>\n";
           //pageBuf = pageBuf + "<td class='matrix'>(per current calib)</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnLtViolet\" onClick=\"refreshAD();\">ReCheck A/D</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Voltmeter Says</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Voltmeter Says</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_actvolt' /></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnGold\" onClick=\"recalibVolts();\">Re-Calibrate</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
@@ -244,7 +244,7 @@ bool webap_build_batt(String header) {
       pageBuf = pageBuf + "<table>\n";
       
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Battery Used</td>\n";          
+          pageBuf = pageBuf + "<td class='matrix left'>Battery Used</td>\n";          
           pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_bmu' id='sel_bmu'>\n"; 
             pageBuf = pageBuf + "<option value=0"; 
             if (!config.batt_M_used) {
@@ -263,7 +263,7 @@ bool webap_build_batt(String header) {
        
       
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Shutdown on Red?</td>\n";            
+          pageBuf = pageBuf + "<td class='matrix left'>Shutdown on Red?</td>\n";            
           pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_bms' id='sel_bms'>\n"; 
             pageBuf = pageBuf + "<option value=0"; 
             if (!config.batt_M_shutdown_on_red) {
@@ -282,7 +282,7 @@ bool webap_build_batt(String header) {
         
       
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Num of Cells</td>\n";            
+          pageBuf = pageBuf + "<td class='matrix left'>Num of Cells</td>\n";            
           pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_bmnc' id='sel_bmnc'>\n"; 
             pageBuf = pageBuf + "<option value=0"; 
             if (config.batt_M_numcells == 1) {
@@ -309,19 +309,19 @@ bool webap_build_batt(String header) {
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Min V GREEN</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Min V GREEN</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_vgreen' value='" + config.batt_M_min_green + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveMinGreen();\">Update</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Min V YELLOW</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Min V YELLOW</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_vyellow' value='" + config.batt_M_min_yellow + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveMinYellow();\">Update</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Min V ORANGE</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Min V ORANGE</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_vorange' value='" + config.batt_M_min_orange + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveMinOrange();\">Update</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
@@ -333,13 +333,13 @@ bool webap_build_batt(String header) {
         pageBuf = pageBuf + "<tr>\n";          
           int vbat_raw = analogRead(PIN_VBAT_M_CHK);
           float batt_volts = (config.batt_M_scale * vbat_raw) / 1000.0; 
-          pageBuf = pageBuf + "<td class='matrix'>Measured Volts</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Measured Volts</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><span id='disp_vmeas'>" + String(batt_volts, 2) + "</span></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnLtViolet\" onClick=\"refreshAD();\">ReCheck A/D</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Voltmeter Says</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Voltmeter Says</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_actvolt' /></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnGold\" onClick=\"recalibVolts();\">Re-Calibrate</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";

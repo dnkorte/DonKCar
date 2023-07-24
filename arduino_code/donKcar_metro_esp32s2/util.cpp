@@ -120,13 +120,41 @@ boolean isNumeric(String testWord) {
       return true;
     }
  }
+ 
+/*
+ * test if String is reasonable integer value
+ * modified from isFloat() (above)
+ * from: https://forum.pjrc.com/threads/34705-Arduino-String-How-to-identify-valid-float
+ * call: bool status = isNumeric("-1234");
+ * 
+ * if it is reasonable float, can convert to float by   myFloatVar = myStringVar.toFloat();
+ */
+ boolean isInteger(String testString) {
+    int signCount = 0;
+    int decPointCount = 0;
+    int digitCount = 0;
+    int otherCount = 0;
+    for (int j=0; j<testString.length(); j++) {
+      char ch = testString.charAt(j);
+      if ( j==0 && ( ch=='-' || ch=='+' ) ) signCount++; //leading sign
+      else if ( ch>='0' && ch<='9' ) digitCount++; //digit
+      else if ( ch=='.' ) decPointCount++; //decimal point
+      else otherCount++; //that's bad :(
+    }
+    if (signCount>1 || decPointCount>0 || digitCount<1 || otherCount>0) {
+      return false;
+    }
+    else {
+      return true;
+    }
+ }
 
  int readAnalog5xAveraged(int pin) {
   int sum_of_readings = 0;
   int average;
   
     for (int i=0; i<5; i++) {
-      sum_of_readings += analogRead(PIN_VBAT_E_CHK);
+      sum_of_readings += analogRead(pin);
     }
     average = sum_of_readings / 5;
     return average;

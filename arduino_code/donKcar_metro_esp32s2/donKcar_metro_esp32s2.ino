@@ -41,7 +41,7 @@
 long nextBattDispDue_E, nextBattDispDue_M;
 long nextBattSendDue_E, nextBattSendDue_M;
 long nextHeartbeatCheckDue, nextMenuCheckDue;
-long nextCam1QueryDue;
+long nextCam1QueryDue, nextStatusMessageClearCheck;
 
 long nextTestDue;
 int testangle, testFlavor;
@@ -78,14 +78,16 @@ void setup() {
   nextBattSendDue_E = millis() + 70;
   nextBattSendDue_M = millis() + 2070;
   nextCam1QueryDue = millis() + 315;
+  nextStatusMessageClearCheck = millis() + 263;
   nextHeartbeatCheckDue = 0;
   nextMenuCheckDue = 0;
   
   nextTestDue = millis() + 230;
   testFlavor = 0;   // currently no camera polls
-  cam_init();
   
-  mode_set_mode(MODE_IDLE); 
+  cam_init();
+  mode_set_mode(MODE_IDLE);
+  status_disp_info_msgs(String("Boot Complete."), String("This vehicle is"), String("ready to RACE"), 'G');
 }
 
 void loop() {
@@ -119,15 +121,6 @@ void loop() {
     flagY = false;
   }
 
-  if (webap_getWebMode()) {
-    webap_process();
-  }
-
-  if (webap_getWebEndRequest()) {
-    // note this delay  is ok because robot isn't doing anything else when it (was) in web mode
-    delay(100);         
-    webap_deinit(0);    // terminated due to user request
-  }
  
   if (current_time > nextBattDispDue_E) {
     nextBattDispDue_E = current_time + 60000;
@@ -166,6 +159,42 @@ void loop() {
     mode_check_menu_timeout();   // check for menu timeouts
   }
 
+  /* 
+   *  implement "clear status message" process after appropriate timeouts
+   *  (note messages time out after 30 seconds)
+   */
+  if (current_time > nextStatusMessageClearCheck) {
+    nextStatusMessageClearCheck = current_time + 100;
+    status_message_area_clear_check();   // check for menu timeouts
+  }
+
+  /*
+   * if the web configurator is running we process any requests
+   * or page builders here (note there is no ESP-NOW while its running)
+   */
+  if (webap_getWebMode()) {
+    webap_process();
+  }
+
+  /*
+   * when a web page requests to exit from web configurator, it can't turn
+   * off the web client immediately because it needs time for the last characters
+   * sent to actually "get out".  so it puts in a delay request, which is 
+   * honored here
+   */
+  if (webap_getWebEndRequest()) {
+    // note this delay  is ok because robot isn't doing anything else when it (was) in web mode
+    delay(100);         
+    webap_deinit(0);    // terminated due to user request
+  }
+
+  /*
+   * check for any incoming characters from the camera on serial
+   * also check to handle timeout if messages "lost" or corrupted
+   */
+  cam_loop();
+  cam_timeout_check();
+
   //if (current_time > nextCam1QueryDue)  {
   //  if (testFlavor == 1) {
   //    for (int ii=0; ii<10; ii++) {
@@ -185,8 +214,6 @@ void loop() {
   //  }
   //  nextTestDue = millis() + 10000;
   //}
-  
-  cam_loop();
   
   //delay(5);
 }

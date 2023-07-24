@@ -27,8 +27,11 @@
  */
 #include "webap_pages_util.h"
 #include "webap_core.h"
+#include "cam.h"
 
 extern String pageBuf;
+extern bool webap_allow_page_close;
+extern bool in_a_build_waiting_for_cam_to_continue_v1;
 
 /*
  * this checks for pages that perform basic utility functions
@@ -70,6 +73,22 @@ void webap_build_util(String header) {
     pageBuf = pageBuf + webap_commonJS();
     pageBuf = pageBuf + webap_end_page();
   
+  /*
+   * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+   * page cam_image.html
+   * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+   */
+  } else if (header.indexOf("GET /cam_image.html") >=0) {
+    pageBuf = pageBuf + webap_start_page();
+    pageBuf = pageBuf + show_mycss(); 
+    pageBuf = pageBuf + "</head>\n";  
+      
+    pageBuf = pageBuf + "<body>\n<h1>Current Camera Image</h1>\n"; 
+    cam_request_pic();
+    // note this page will be finalized by webap_util_finish_cam() once pic is available
+    // do not allow core to close out the clientAP until that happens...
+    webap_allow_page_close = false;
+    in_a_build_waiting_for_cam_to_continue_v1 = true;
    
   /*
    * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
@@ -108,9 +127,27 @@ void webap_build_util(String header) {
     pageBuf = pageBuf + webap_end_page();
   }
 }
-  
 
+void webap_util_finish_cam() {
+    if (!cam_check_cam_image_readiness()) {
+      return;
+    }
+    pageBuf = "<div><img src=\"data:image/jpeg;base64,";
+    cam_append_pic(pageBuf);
+    pageBuf = pageBuf + "\" /></div>\n";      
+    pageBuf = pageBuf + show_menu();  
+    pageBuf = pageBuf + webap_start_local_js();
+      // note need the start and end local even if no local js needed (the start has constants needed for common)
+      // and must have the following function, which may be expanded if page generates parameters
+      pageBuf = pageBuf + "function local_api_process(paramid, myvalue) { alert('local process:' + paramid + '$' + myvalue); }\n";
+    pageBuf = pageBuf + webap_end_local_js();
+    pageBuf = pageBuf + webap_commonJS();
 
+    pageBuf = pageBuf + webap_end_page();     
+    webap_print_pageBuf();
+    webap_closeout_client();
+    in_a_build_waiting_for_cam_to_continue_v1 = false;
+}
 
     
 /*

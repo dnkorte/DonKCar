@@ -37,11 +37,12 @@
 #define NUMPIXELS 1
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN_NEOPIXEL, NEO_GRB + NEO_KHZ800);
 
+#define MESSAGE_TIMER_PRESET 300  // 300 intervals of 100ms = 30 sec
 
 String StatMsg1, StatMsg2, StatMsg3, MenuMsg;
 char   StatCC1, StatCC2, StatCC3, MenuCC;
 bool   StatNew1, StatNew2, StatNew3, MenuNew;
-
+int    status_message_timer;  // status messages disappear after 30 sec
 
 int  current_screen;
 
@@ -60,6 +61,7 @@ void status_init() {
   StatNew2 = false;
   StatNew3 = false;
   MenuNew = false;
+  status_message_timer = -1;  // no message timer active
 }
 
 // -- make many of these "save" message.   then have a single "display" function that is called from main loop and actually shows anything with a changee
@@ -69,6 +71,7 @@ void status_clear_status_area() {
     screen_clearLine(ROW_M_STAT1);
     screen_clearLine(ROW_M_STAT2);
     screen_clearLine(ROW_M_STAT3);
+    status_message_timer = -1;   // (nothing counting, right now)
     screen_show();
   }
 }
@@ -139,18 +142,18 @@ void status_display_mainscreen_messages() {
     if (StatNew1) {
       screen_centerString(ROW_M_STAT1, StatMsg1, ccToRGB(StatCC1));
       StatNew1 = false;
+      status_message_timer = MESSAGE_TIMER_PRESET;
     }
     if (StatNew2) {
       screen_centerString(ROW_M_STAT2, StatMsg2, ccToRGB(StatCC2));
       StatNew2 = false;
+      status_message_timer = MESSAGE_TIMER_PRESET;
     }
     if (StatNew3) {
       screen_centerString(ROW_M_STAT3, StatMsg3, ccToRGB(StatCC3));
       StatNew3 = false;
+      status_message_timer = MESSAGE_TIMER_PRESET;
     }
-    if (StatNew1) {
-      StatNew1 = false;
-    }   
     if (MenuNew) {
       screen_centerString(ROW_M_MENU_INFO, MenuMsg, ccToRGB(MenuCC));
       MenuNew = false;
@@ -179,6 +182,16 @@ void status_disp_batt_volts(char battcode, float battvolts, float cellvolts, cha
     if (battcode == 'C') {
       dtostrf(battvolts, 4, 1, tmpBuf);
       screen_writeText_colrow(COL_M_BATT_LAB_C+2, ROW_M_BATT1, 5, tmpBuf, ccToRGB(colorcode));
+    }
+  }
+}
+
+void status_message_area_clear_check() {
+  if (status_message_timer > -1) {
+    status_message_timer--;
+    if (status_message_timer <= 0) {
+      status_clear_status_area();
+      status_message_timer = -1;
     }
   }
 }

@@ -37,7 +37,7 @@
 #define MODE_MANUAL2      3   // Steer Only
 #define MODE_AUTO         4
 #define MODE_CONFIGURING  5
-#define MODE_LEARNING     6
+#define MODE_QUICKSETUP   6
 #define MODE_MENU         7
 #define MODE_ERROR_BATT   8
 #define MODE_ERROR_HBEAT  9
@@ -59,6 +59,11 @@ void mode_menu_itemselect();
 void mode_check_webap_heartbeat();
 void mode_notice_webap_heartbeat(void);
 void mode_init_webap_heartbeat();
-void mode_got_msg_blobs1(int16_t steer_angle, int16_t measured_angle);
+void mode_got_msg_steerangle(int16_t steer_angle, int16_t angle_error);
+char mode_get_speed_mode_color();
+bool mode_check_but_U();
+bool mode_check_but_D();
+bool mode_check_but_R();
+bool mode_check_but_L();
 
 #endif   /* MODE_H */ 

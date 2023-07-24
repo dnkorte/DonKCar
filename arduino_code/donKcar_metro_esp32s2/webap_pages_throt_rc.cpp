@@ -67,7 +67,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Creep Speed</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Creep Speed</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjManSpdCreep(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valManSpdCreep' value='" + config.manual_speed_creep + "'/>\n";
@@ -78,7 +78,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Normal Speed</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Normal Speed</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjManSpdNormal(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valManSpdNormal' value='" + config.manual_speed_normal + "'/>\n";
@@ -89,7 +89,18 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Turning Speed</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Boost Speed</td>\n";
+          pageBuf = pageBuf + "<td class='matrix'>\n";
+            pageBuf = pageBuf + "<button onClick=\"adjManSpdBoost(-5);\">&lt&lt</button>\n";
+            pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valManSpdBoost' value='" + config.manual_speed_boost + "'/>\n";
+            pageBuf = pageBuf + "<button onClick=\"adjManSpdNBoost(+5);\">&gt&gt</button>\n";
+          pageBuf = pageBuf + "</td>\n";
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"saveManSpdBoost();\">Set</button></td>\n";
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnBlue\" onClick=\"goManSpdBoost();\">Go</button></td>\n";
+        pageBuf = pageBuf + "</tr>\n";
+
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Turning Speed</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjManSpdTurn(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valManSpdTurn' value='" + config.manual_speed_turns + "'/>\n";
@@ -100,7 +111,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Turn Threshold</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Turn Threshold</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjManTurnThresh(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valManTurnThresh' value='" + config.manual_turn_threshold + "'/>\n";
@@ -115,7 +126,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Normal Speed</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Normal Speed</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjAutoSpdNormal(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valAutoSpdNormal' value='" + config.auto_speed_normal + "'/>\n";
@@ -126,7 +137,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Turning Speed</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Turning Speed</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjAutoSpdTurn(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valAutoSpdTurn' value='" + config.auto_speed_turns + "'/>\n";
@@ -141,7 +152,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Accel Limit</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Accel Limit</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjAccelLimit(-2);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valAccelLimit' value='" + config.accel_limit + "'/>\n";
@@ -152,7 +163,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Startup PWM</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Startup PWM</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjThrotStartPWM(-5);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valThrotStartPWM' value='" + config.throt_start_pwm + "'/>\n";
@@ -163,7 +174,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
 
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Startup Duration</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Startup Duration</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>\n";
             pageBuf = pageBuf + "<button onClick=\"adjThrotStartDur(-1);\">&lt&lt</button>\n";
             pageBuf = pageBuf + "<input style='width:48px; max-width:48px;' type='text' id='valThrotStartDur' value='" + config.throt_start_duration + "'/>\n";
@@ -174,7 +185,7 @@ bool webap_build_throt(String header) {
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix'>Stop</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Stop</td>\n";
           pageBuf = pageBuf + "<td class='matrix'>&nbsp;</td>\n";
           pageBuf = pageBuf + "<td class='matrix' colspan='2'><button class=\"btnsmall btnLtBlue\" onClick=\"stop();\">Stop Motor</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
@@ -201,6 +212,13 @@ bool webap_build_throt(String header) {
       pageBuf = pageBuf + "  if (isNaN(initialval)) { initialval = 128; }\n";
       pageBuf = pageBuf + "  newval = initialval + amt;\n  if (newval < 0) { newval = 0; }\n  if (newval > 255) { newval = 255; }\n";
       pageBuf = pageBuf + "  document.getElementById('valManSpdNormal').value = newval;\n";
+      pageBuf = pageBuf + "}\n"; 
+      
+      pageBuf = pageBuf + "function adjManSpdBoost(amt) {\n";      
+      pageBuf = pageBuf + "  initialval=parseInt(document.getElementById('valManSpdBoost').value);\n";
+      pageBuf = pageBuf + "  if (isNaN(initialval)) { initialval = 128; }\n";
+      pageBuf = pageBuf + "  newval = initialval + amt;\n  if (newval < 0) { newval = 0; }\n  if (newval > 255) { newval = 255; }\n";
+      pageBuf = pageBuf + "  document.getElementById('valManSpdBoost').value = newval;\n";
       pageBuf = pageBuf + "}\n"; 
       
       pageBuf = pageBuf + "function adjManSpdTurn(amt) {\n";      
@@ -265,6 +283,12 @@ bool webap_build_throt(String header) {
       pageBuf = pageBuf + "  Http.send();\n";
       pageBuf = pageBuf + "  }\n";   
       
+      pageBuf = pageBuf + "function goManSpdBoost() {\n";
+      pageBuf = pageBuf + "  myThrot = document.getElementById('valManSpdBoost').value;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'throt/go?value='+myThrot);\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";   
+      
       pageBuf = pageBuf + "function goManSpdTurn() {\n";
       pageBuf = pageBuf + "  myThrot = document.getElementById('valManSpdTurn').value;\n";
       pageBuf = pageBuf + "  Http.open('GET', urlBase+'throt/go?value='+myThrot);\n";
@@ -305,6 +329,12 @@ bool webap_build_throt(String header) {
       pageBuf = pageBuf + "function saveManSpdNormal() {\n";
       pageBuf = pageBuf + "  myThrot = document.getElementById('valManSpdNormal').value;\n";
       pageBuf = pageBuf + "  Http.open('GET', urlBase+'throt/saveManSpdNormal?value='+myThrot);\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "}\n";
+      
+      pageBuf = pageBuf + "function saveManSpdBoost() {\n";
+      pageBuf = pageBuf + "  myThrot = document.getElementById('valManSpdBoost').value;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'throt/saveManSpdBoost?value='+myThrot);\n";
       pageBuf = pageBuf + "  Http.send();\n";
       pageBuf = pageBuf + "}\n";
       
@@ -443,6 +473,25 @@ String webap_process_API_throt(String header) {
       config.manual_speed_normal = myInt;
       cfg_save();
       return "SUCCESS Config file updated for MANUAL NORMAL SPEED (" + String(myInt) + ")";   // success
+    } else {
+      return "ERROR only numbers allowed";   // non-numeric
+    }
+
+  } else if (header.indexOf("/wcmd/throt/saveManSpdBoost") >= 0) {
+    int locOfQuestion = header.indexOf('?');
+    int locOfTrailingSpace = header.indexOf(' ', locOfQuestion);
+    String myValue = header.substring(locOfQuestion+7, locOfTrailingSpace);  
+    if (isNumeric(myValue)) {
+      int myInt = myValue.toInt();
+      if (myInt < 0) {
+        return "ERROR value too small, must be bigger than 0";
+      }
+      if (myInt > 255) {
+        return "ERROR value too large, must be less than 255";
+      }
+      config.manual_speed_boost = myInt;
+      cfg_save();
+      return "SUCCESS Config file updated for MANUAL BOOST SPEED (" + String(myInt) + ")";   // success
     } else {
       return "ERROR only numbers allowed";   // non-numeric
     }

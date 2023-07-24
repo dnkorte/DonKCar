@@ -34,7 +34,6 @@
 void drivetrain_init();
 void drivetrain_stop(void);
 void drivetrain_go(int cmd_joyY, int cmd_joyX);
-void drivetrain_set_steering_value(int value);
 void drivetrain_enable();
 void drivetrain_disable();
 

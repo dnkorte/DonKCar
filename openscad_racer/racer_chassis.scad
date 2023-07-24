@@ -49,7 +49,7 @@ wantLightStrip = "Yes"; // [ "Yes", "No" ]
 frontRightBoard = "None"; // ["SmallMint", "None"]
 frontLeftBoard = "None"; // ["SmallMint",  "None"]
 
-cameraDownAngle = 10;	// [ 5, 10, 12, 15, 17, 20 ]
+cameraDownAngle = 10;	// [ 5, 10, 12, 15, 17, 20, 25, 30, 35 ]
 cameraPillarAccessory = "OpenMV Cam"; // [ "OpenMV Cam", "RPi Cam", "SmallMint Proto", "None"]
 arch_mount_width = 120; // [ 88, 120, 135 ]
 
@@ -210,20 +210,7 @@ module draw_part() {
     } else if (part_to_print == "Show Assembly") {
     	show_assembly();
     } else if (part_to_print == "test") {
-    	//part_hanging_power_hub();
-    	//component_arduino("adds");
-    	//part_back_arch();
-		//cd1 = 10;
-		//cd2 = 15;
-    	//difference() {
-    	//	roundedbox(40, 40, 3, 4);
-		//	translate([ -10, 0, 2 ]) cylinder(d1=cd1, d2=cd2, h=2.1);
-		//	translate([  10, 0, 3 ]) cylinder(d1=cd1, d2=cd2, h=1.1);
-
-		//	translate([ -10, 0, -0.1 ]) cylinder(d=6, h=5); // was 3.5
-		//	translate([  10, 0, -0.1 ]) cylinder(d=6, h=5); // was 3.5
-    	//}
-		draw_battbox_urgenex2000("pins");
+		part_3neopixel_strip_bezel("Y");
     }
 }
 

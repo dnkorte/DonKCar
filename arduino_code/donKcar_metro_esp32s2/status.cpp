@@ -30,7 +30,6 @@
 #include "i2c_com.h"
 #include "nunchuk.h"
 
-
 /*
  * ***************************************************************
  * the status module manages the neopixel display, and the central
@@ -42,9 +41,12 @@
  * ***************************************************************
  */
 
+#define MESSAGE_TIMER_PRESET 300  // 300 intervals of 100ms = 30 sec
+
 int  lastJoyX, lastJoyY;
 int  neo_background_color, neo_foreground_color;
 int  current_screen;
+int  status_message_timer;  // status messages disappear after 30 sec
 
 void status_init() {
   screen_init();
@@ -56,6 +58,7 @@ void status_init() {
   neo_background_color = NEO_COLOR_BLACK;
   neo_foreground_color = NEO_COLOR_WHITE;
   screen_centerString(ROW_STAT4, "Initializing", COLOR_CYAN);
+  status_message_timer = -1;   // (nothing counting, right now)
 }
 
 /*
@@ -82,6 +85,8 @@ void status_disp_info_msgs(String message1, String message2, String message3, ch
     screen_centerString(ROW_STAT2, message2, ccToRGB(colorcode));
     screen_centerString(ROW_STAT3, message3, ccToRGB(colorcode));
   }
+  status_message_timer = MESSAGE_TIMER_PRESET;
+  
   if (nunchuk_is_available()) {
     message1.toCharArray(tmpBuf,21);
     nunchuk_send_text(1, colorcode, tmpBuf);
@@ -104,6 +109,8 @@ void status_disp_simple_msg(String message, char colorcode) {
     screen_clearLine(ROW_STAT1);
     screen_clearLine(ROW_STAT3);
   }
+  status_message_timer = MESSAGE_TIMER_PRESET;
+  
   if (nunchuk_is_available()) {
     emptiness.toCharArray(tmpBuf,21);
     nunchuk_send_text(1, colorcode, tmpBuf);
@@ -119,6 +126,17 @@ void status_disp_clear_status_area() {
     screen_clearLine(ROW_STAT1);
     screen_clearLine(ROW_STAT2);
     screen_clearLine(ROW_STAT3);  
+  }
+  status_message_timer = -1;
+}
+
+void status_message_area_clear_check() {
+  if (status_message_timer > -1) {
+    status_message_timer--;
+    if (status_message_timer <= 0) {
+      status_disp_clear_status_area();
+      status_message_timer = -1;
+    }
   }
 }
 
@@ -235,44 +253,42 @@ void status_neo_send(int cmd, int param) {
   i2c_send_cmd_and_byte(I2C_NEOPIXEL, cmd, param);
 }
 
-
-void status_neo_show_steering_info(int cmd_joyX) {
-  int scaledX = cmd_joyX / 24;
-  
-  if (scaledX != lastJoyX) {
-    int window_width = 5;     // just make it always 5
-    int window_center = 11 + scaledX;
-    //status_neo_send(NEO_CMD_SETMODE,NEO_MODE_WINDOWED);
-    status_neo_send(NEO_CMD_SET_WIN_CTR, window_center);
-    status_neo_send(NEO_CMD_SET_WIN_WIDTH, window_width);
-    lastJoyX = scaledX;
-  }
-}
-
-void status_neo_show_steering_info(int cmd_joyY, int cmd_joyX, bool forcedisplay) {
+void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX, char ctrColor) {
   int scaledX = cmd_joyX / 24;
   int scaledY = cmd_joyY / 36;
-  
-  if ((scaledX != lastJoyX) || (forcedisplay)) {
-    int window_width = 5;     // just make it always 5
-    int window_center = 11 + scaledX;
-    status_neo_send(NEO_CMD_SETMODE,NEO_MODE_WINDOWED);
-    status_neo_send(NEO_CMD_SET_WIN_CTR, window_center);
-    status_neo_send(NEO_CMD_SET_WIN_WIDTH, window_width);
-    lastJoyX = scaledX;
+  int colorcode;
+
+  switch(ctrColor) {
+    case 'W':
+      colorcode = NEO_COLOR_WHITE;
+      break;
+    case 'P':
+      colorcode = NEO_COLOR_PURPLE;
+      break;
+    case 'O':
+      colorcode = NEO_COLOR_ORANGE;
+      break;
+    case 'Y':
+      colorcode = NEO_COLOR_YELLOW;
+      break;
+    case 'C':
+      colorcode = NEO_COLOR_CYAN;
+      break;
+    case 'R':
+      colorcode = NEO_COLOR_RED;
+      break;
+    default:
+      colorcode = NEO_COLOR_BLACK;
   }
-}
-void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX) {
-  int scaledX = cmd_joyX / 24;
-  int scaledY = cmd_joyY / 36;
   
   if ((scaledY != lastJoyY) || (scaledX != lastJoyX)) {
-    int window_width = abs(scaledY);
-    if (window_width < 1) {
-      window_width = 1;
-    }
+    int window_width = 5;
     int window_center = 11 + scaledX;
+    if (window_center < 2) {
+      window_center = 2;
+    }
     //status_neo_send(NEO_CMD_SETMODE,NEO_MODE_WINDOWED);
+    status_neo_send(NEO_CMD_SETFOREGROUND,colorcode);
     status_neo_send(NEO_CMD_SET_WIN_CTR, window_center);
     status_neo_send(NEO_CMD_SET_WIN_WIDTH, window_width);
     lastJoyY = scaledY;
@@ -280,17 +296,39 @@ void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX) {
   }
 }
 
-void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX, bool forcedisplay) {
+void status_neo_show_movement_info(int cmd_joyY, int cmd_joyX, char ctrColor, bool forcedisplay) {
   int scaledX = cmd_joyX / 24;
   int scaledY = cmd_joyY / 36;
+  int colorcode;
+
+  switch(ctrColor) {
+    case 'W':
+      colorcode = NEO_COLOR_WHITE;
+      break;
+    case 'P':
+      colorcode = NEO_COLOR_PURPLE;
+      break;
+    case 'O':
+      colorcode = NEO_COLOR_ORANGE;
+      break;
+    case 'Y':
+      colorcode = NEO_COLOR_YELLOW;
+      break;
+    case 'R':
+      colorcode = NEO_COLOR_RED;
+      break;
+    default:
+      colorcode = NEO_COLOR_BLACK;
+  }
   
   if ((scaledY != lastJoyY) || (scaledX != lastJoyX) || (forcedisplay)) {
-    int window_width = abs(scaledY);
-    if (window_width < 1) {
-      window_width = 1;
-    }
+    int window_width = 5;
     int window_center = 11 + scaledX;
+    if (window_center < 2) {
+      window_center = 2;
+    }
     status_neo_send(NEO_CMD_SETMODE,NEO_MODE_WINDOWED);
+    status_neo_send(NEO_CMD_SETFOREGROUND,colorcode);
     status_neo_send(NEO_CMD_SET_WIN_CTR, window_center);
     status_neo_send(NEO_CMD_SET_WIN_WIDTH, window_width);
     lastJoyY = scaledY;

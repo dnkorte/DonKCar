@@ -85,7 +85,8 @@ struct Config {
   int steer_right_us;
   float steering_fraction;
   int manual_speed_creep;     
-  int manual_speed_normal;
+  int manual_speed_normal;  
+  int manual_speed_boost;
   int manual_speed_turns;
   int manual_turn_threshold;
   int auto_speed_normal;
@@ -99,6 +100,28 @@ struct Config {
   int esc_min_throttle;
   int esc_max_throttle;
   int esc_reverse_throttle;  
+
+  int cam_startup_mode;   // (by index 0/Blob, 1/1-Line (regression), 2/Lane Lines
+  int blob_roiTloc;
+  int blob_roiTheight;
+  int blob_roiMloc;
+  int blob_roiMheight;
+  int blob_roiBloc;
+  int blob_roiBheight;
+  float blob_roiTweight;
+  float blob_roiMweight;
+  float blob_roiBweight;
+  float blob_float_thresh;
+  float blob_seed_thresh;
+  int blob_seed_loc;
+  float pid_kp;
+  float pid_ki;
+  float pid_kd;
+  int pid_steering_direction; // (by index 0 means NORMAL, 1 means reverse
+  float pid_steering_gain;    
+  float cam_perspective_factor; // typ 0.1 - 1.0
+  int cam_perspective_wanted;   // (by index 0 means NO, 1 means YES
+    
   int readconfirm;
 };
 
@@ -162,7 +185,7 @@ extern Config config;
   // may set pins to 0 if sercom1 is not used, else to pin numbers
   #define PIN_RX_SERCOM1 9
   #define PIN_TX_SERCOM1 10
-  #define BAUD_RATE_SERCOM1 57600
+  #define BAUD_RATE_SERCOM1 230400
 
   // note A0 and A1 are on ADC2 and cannot be used when wifi/bluetooth is used
   // A2-A5 are on ADC1 and can be freely used

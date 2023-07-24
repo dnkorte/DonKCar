@@ -136,6 +136,7 @@ int screen_get_pixel_x(int col);
 int screen_get_pixel_y(int rowindex);
 int screen_get_last_col_index();
 int ccToRGB(char colorcode);
+void status_message_area_clear_check();
 
 void screen_writeText_xrow(int x, int rowindex, int w, char myText[], int color );
 void screen_writeText_colrow(int col, int rowindex, int nc, char myText[], int color );

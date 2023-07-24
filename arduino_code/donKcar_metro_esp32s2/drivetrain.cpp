@@ -88,27 +88,15 @@ void drivetrain_disable() {
  * @param: int cmd_joyY, cmd_joyX  should be -255 (back) to +255 (fwd)
  */
 void drivetrain_go(int cmd_joyY, int cmd_joyX) {  
-  
   if (mode_motion_permitted()) { 
     servo_set_steering_value(cmd_joyX);
     servo_set_throttle(cmd_joyY);
-    status_neo_show_movement_info(cmd_joyY, cmd_joyX);    // neopixel display
-    status_disp_throt_value('Y', cmd_joyY, 'W');
+    status_neo_show_movement_info(cmd_joyY, cmd_joyX, mode_get_speed_mode_color());    // neopixel display
+    status_disp_throt_value('Y', cmd_joyY, mode_get_speed_mode_color());
     status_disp_throt_value('X', cmd_joyX, 'W');    
   }
 }
 
-/*
- * drivetrain_set_steering_value() sets steering angle as fraction of full travel
- * @param: int value  should be -255 (full left) to +255 (full right)
- */
-void drivetrain_set_steering_value(int value) {  
-  if (mode_motion_permitted()) { 
-    servo_set_steering_value(value);
-    status_neo_show_steering_info(value);    // neopixel display    
-    status_disp_throt_value('X', value, 'W');     
-  }  
-}
 #endif  /* FLAVOR_RC */
 
 /*
