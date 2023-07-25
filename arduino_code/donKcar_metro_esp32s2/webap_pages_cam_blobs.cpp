@@ -129,7 +129,7 @@ bool webap_build_cam_blobs(String header) {
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix' colspan='5'>Values are floating point (0.0 - 2.0)</td>\n";
+          pageBuf = pageBuf + "<td class='matrix' colspan='5'>Values are floating point (0.0 - 5.0)</td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         
@@ -502,19 +502,19 @@ String webap_process_API_cam_blobs(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 2.0)
+    // param1 holds "weight" value (0.0 = 5.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 2.0)";
+        return "ERROR value must be positive (0.0 - 5.0)";
       }
-      if (myFloat > 2.0) {
-        return "ERROR value too large, must be (0.0 - 2.0";
+      if (myFloat > 5.0) {
+        return "ERROR value too large, must be (0.0 - 5.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 2.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 5.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -538,19 +538,19 @@ String webap_process_API_cam_blobs(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 2.0)
+    // param1 holds "weight" value (0.0 = 52.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 2.0)";
+        return "ERROR value must be positive (0.0 - 5.0)";
       }
-      if (myFloat > 2.0) {
-        return "ERROR value too large, must be (0.0 - 2.0";
+      if (myFloat > 5.0) {
+        return "ERROR value too large, must be (0.0 - 5.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 2.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 5.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -574,19 +574,19 @@ String webap_process_API_cam_blobs(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 2.0)
+    // param1 holds "weight" value (0.0 = 5.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 2.0)";
+        return "ERROR value must be positive (0.0 - 5.0)";
       }
-      if (myFloat > 2.0) {
-        return "ERROR value too large, must be (0.0 - 2.0";
+      if (myFloat > 5.0) {
+        return "ERROR value too large, must be (0.0 - 5.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 2.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 5.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)

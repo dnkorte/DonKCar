@@ -69,6 +69,10 @@ int menuColors_NEO[] = {
   NEO_COLOR_YELLOW, NEO_COLOR_BLUE, NEO_COLOR_GREEN, NEO_COLOR_PURPLE, NEO_COLOR_ORANGE
 };
 
+char menuColorCodes[] = {
+  'Y', 'B', 'G', 'P', 'O'
+};
+
 /*
  * templates for private functions
  */
@@ -444,7 +448,7 @@ void mode_menu_indexer() {
   }
   mode_notice_menuaction();
   status_neo_show_menu_psn5(menu_index, menuColors_NEO[menu_index]);
-  status_disp_menu_msg(menuStrings[menu_index], 'Z');
+  status_disp_menu_msg(String(">>") + menuStrings[menu_index] + String("<<"), menuColorCodes[menu_index]);
 }
 
 void mode_menu_itemselect() {

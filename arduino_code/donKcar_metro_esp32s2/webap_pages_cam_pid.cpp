@@ -65,19 +65,19 @@ bool webap_build_cam_pid(String header) {
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix left'>Prop. Gain Kp (0-500)</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Prop. Gain Kp (0-1000)</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_kp' value='" + config.pid_kp + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_kp();\">Save</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix left'>Integral Gain Ki (0-100)</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Integral Gain Ki (0-300)</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_ki' value='" + config.pid_ki + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_ki();\">Save</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
-          pageBuf = pageBuf + "<td class='matrix left'>Deriv. Gain Kd (0-100)</td>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Deriv. Gain Kd (0-300)</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_kd' value='" + config.pid_kd + "'/></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_kd();\">Save</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";        
@@ -211,19 +211,19 @@ String webap_process_API_cam_pid(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 100.0)
+    // param1 holds "weight" value (0.0 = 1000.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 500.0)";
+        return "ERROR value must be positive (0.0 - 1000.0)";
       }
-      if (myFloat > 500.0) {
-        return "ERROR value too large, must be (0.0 - 500.0";
+      if (myFloat > 1000.0) {
+        return "ERROR value too large, must be (0.0 - 1000.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 500.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 1000.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -247,7 +247,7 @@ String webap_process_API_cam_pid(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 100)
+    // param1 holds "weight" value (0.0 = 300)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
@@ -255,11 +255,11 @@ String webap_process_API_cam_pid(String header) {
       if (myFloat < 0.0) {
         return "ERROR value must be positive (0.0 - 100.0)";
       }
-      if (myFloat > 100.0) {
-        return "ERROR value too large, must be (0.0 - 100.0";
+      if (myFloat > 300.0) {
+        return "ERROR value too large, must be (0.0 - 300.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 100.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 100300.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -283,19 +283,19 @@ String webap_process_API_cam_pid(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 100.0)
+    // param1 holds "weight" value (0.0 = 300.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 100.0)";
+        return "ERROR value must be positive (0.0 - 300.0)";
       }
-      if (myFloat > 100.0) {
-        return "ERROR value too large, must be (0.0 - 100.0";
+      if (myFloat > 300.0) {
+        return "ERROR value too large, must be (0.0 - 300.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 100.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 300.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
