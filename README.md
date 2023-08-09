@@ -76,7 +76,7 @@ Some photos of the controller box are shown below, or a more complete [photo alb
 		<img width="280" src="https://github.com/dnkorte/DonKCar/blob/main/images/controller_nunchuk_on_belt_top_view.jpg" alt="Controller on belt-clip">
 	</td>
 </tr><tr>
-	<td>
+	<td colspan=3>
 		<img width="840" src="https://github.com/dnkorte/DonKCar/blob/main/images/controller_nunchuk_on_belt.jpg" alt="Controller on belt-clip">
 	</td>
 
