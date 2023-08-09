@@ -81,5 +81,3 @@ Some photos of the controller box are shown below, or a more complete [photo alb
 	</td>
 
 </tr></table>
-
-Protocol_for_Nunchuk_Controller_for_Racer_Robot.pdf
