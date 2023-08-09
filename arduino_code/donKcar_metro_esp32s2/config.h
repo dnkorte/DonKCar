@@ -117,10 +117,16 @@ struct Config {
   float pid_kp;
   float pid_ki;
   float pid_kd;
-  int pid_steering_direction; // (by index 0 means NORMAL, 1 means reverse
-  float pid_steering_gain;    
-  float cam_perspective_factor; // typ 0.1 - 1.0
-  int cam_perspective_wanted;   // (by index 0 means NO, 1 means YES
+
+  int blob_lumi_low;
+  int blob_lumi_high;
+  int cam_histeq_wanted;  // 0/no, 1/yes
+  int cam_negate_wanted;  // 0/no, 1/yes
+  
+  int pid_steering_direction; // DEPRECATE (by index 0 means NORMAL, 1 means reverse
+  float pid_steering_gain;    // DEPRECATE
+  float cam_perspective_factor; // DEPRECATE typ 0.1 - 1.0
+  int cam_perspective_wanted;   // DEPRECATE (by index 0 means NO, 1 means YES
     
   int readconfirm;
 };

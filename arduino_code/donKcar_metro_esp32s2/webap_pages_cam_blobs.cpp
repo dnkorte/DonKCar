@@ -131,7 +131,25 @@ bool webap_build_cam_blobs(String header) {
         pageBuf = pageBuf + "<tr>\n";
           pageBuf = pageBuf + "<td class='matrix' colspan='5'>Values are floating point (0.0 - 5.0)</td>\n";
         pageBuf = pageBuf + "</tr>\n";
+
         
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix ltblue' colspan='5'>Luminance Parameters</td>\n";
+        pageBuf = pageBuf + "</tr>\n";        
+        
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix left' colspan='2'>Low Threshold</td>\n";
+          pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_lumi_low' value='" + config.blob_lumi_low + "'/></td>\n";
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnBlue\" onClick=\"set_lumi_low();\">Set</button></td>\n"; 
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_lumi_low();\">Make Default</button></td>\n";
+        pageBuf = pageBuf + "</tr>\n";
+        
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix left' colspan='2'>High Threshold</td>\n";
+          pageBuf = pageBuf + "<td class='matrix'><input style='width:48px; max-width:48px;' type='text' id='inp_lumi_high' value='" + config.blob_lumi_high + "'/></td>\n";
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnBlue\" onClick=\"set_lumi_high();\">Set</button></td>\n"; 
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_lumi_high();\">Make Default</button></td>\n";
+        pageBuf = pageBuf + "</tr>\n";
         
         pageBuf = pageBuf + "<tr>\n";
           pageBuf = pageBuf + "<td class='matrix ltblue' colspan='5'>Flood Fill Parameters</td>\n";
@@ -222,7 +240,19 @@ bool webap_build_cam_blobs(String header) {
       pageBuf = pageBuf + "  newVal = document.getElementById('inp_seed_loc').value;\n";
       pageBuf = pageBuf + "  Http.open('GET', urlBase+'camb/LocSeed?value=' + newVal + ':XX:1');\n";
       pageBuf = pageBuf + "  Http.send();\n";
-      pageBuf = pageBuf + "  }\n";     
+      pageBuf = pageBuf + "  }\n";            
+         
+      pageBuf = pageBuf + "function save_lumi_low() {\n";
+      pageBuf = pageBuf + "  newVal = document.getElementById('inp_lumi_low').value;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camb/lumi_low?value=' + newVal + ':XX:1');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";            
+         
+      pageBuf = pageBuf + "function save_lumi_high() {\n";
+      pageBuf = pageBuf + "  newVal = document.getElementById('inp_lumi_high').value;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camb/lumi_high?value=' + newVal + ':XX:1');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";  
       
          
       pageBuf = pageBuf + "function setROIyh_t() {\n";
@@ -280,7 +310,19 @@ bool webap_build_cam_blobs(String header) {
       pageBuf = pageBuf + "  newVal = document.getElementById('inp_seed_loc').value;\n";
       pageBuf = pageBuf + "  Http.open('GET', urlBase+'camb/LocSeed?value=' + newVal + ':XX:0');\n";
       pageBuf = pageBuf + "  Http.send();\n";
-      pageBuf = pageBuf + "  }\n";     
+      pageBuf = pageBuf + "  }\n";             
+         
+      pageBuf = pageBuf + "function set_lumi_low() {\n";
+      pageBuf = pageBuf + "  newVal = document.getElementById('inp_lumi_low').value;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camb/lumi_low?value=' + newVal + ':XX:0');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";            
+         
+      pageBuf = pageBuf + "function set_lumi_high() {\n";
+      pageBuf = pageBuf + "  newVal = document.getElementById('inp_lumi_high').value;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camb/lumi_high?value=' + newVal + ':XX:0');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";    
       
     pageBuf = pageBuf + webap_end_local_js();
     pageBuf = pageBuf + webap_commonJS();
@@ -502,19 +544,19 @@ String webap_process_API_cam_blobs(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 5.0)
+    // param1 holds "weight" value (0.0 = 10.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 5.0)";
+        return "ERROR value must be positive (0.0 - 10.0)";
       }
-      if (myFloat > 5.0) {
-        return "ERROR value too large, must be (0.0 - 5.0";
+      if (myFloat > 10.0) {
+        return "ERROR value too large, must be (0.0 - 10.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 5.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 10.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -544,13 +586,13 @@ String webap_process_API_cam_blobs(String header) {
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 5.0)";
+        return "ERROR value must be positive (0.0 - 10.0)";
       }
-      if (myFloat > 5.0) {
-        return "ERROR value too large, must be (0.0 - 5.0";
+      if (myFloat > 10.0) {
+        return "ERROR value too large, must be (0.0 - 10.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 5.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 10.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -574,19 +616,19 @@ String webap_process_API_cam_blobs(String header) {
     int action;
     float myFloat;
 
-    // param1 holds "weight" value (0.0 = 5.0)
+    // param1 holds "weight" value (0.0 = 10.0)
     // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
     // note that the isFloat() and isInteger() methods are defined in util.cpp
     if (isFloat(param1)) {
       myFloat = param1.toFloat();
       if (myFloat < 0.0) {
-        return "ERROR value must be positive (0.0 - 5.0)";
+        return "ERROR value must be positive (0.0 - 10.0)";
       }
-      if (myFloat > 5.0) {
-        return "ERROR value too large, must be (0.0 - 5.0";
+      if (myFloat > 10.0) {
+        return "ERROR value too large, must be (0.0 - 10.0";
       }
     } else {
-      return "ERROR only floating point numbers allowed (0.0 - 5.0)";   // non-numeric
+      return "ERROR only floating point numbers allowed (0.0 - 10.0)";   // non-numeric
     }
     
     // param3 holds action command (0=set, 1=save as default)
@@ -718,6 +760,82 @@ String webap_process_API_cam_blobs(String header) {
       return "ERROR unexpected action value sent";
     }
     // end of /wcmd/camb/LocSeed
+
+    
+    
+  } else if (header.indexOf("/wcmd/camb/lumi_low") >= 0) {  
+    int action;
+    int myvalue;
+
+    // param1 holds "threshold value" value (0 - 100)
+    // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
+    // note that the isFloat() and isInteger() methods are defined in util.cpp
+    if (isInteger(param1)) {
+      myvalue = param1.toInt();
+      if (myvalue < 0) {
+        return "ERROR value must be positive (0-100)";
+      }
+      if (myvalue > 100) {
+        return "ERROR value too large, must be (0-100)";
+      }
+    } else {
+      return "ERROR only integer numbers allowed (0-100)";   // non-numeric
+    }
+    
+    // param3 holds action command (0=set, 1=save as default)
+    int myInt = param3.toInt();
+    if (myInt == 0) {
+      // index 0 indicates just SET value
+      cam_send_cmd(CAM_CMD_BLOB_SET_LUMI_LOW, myvalue);
+      return "SUCCESS sent value to camera";
+    } else if (myInt == 1) {
+      // index 1 indicates SET values and SAVE AS DEFAULT
+      cam_send_cmd(CAM_CMD_BLOB_SET_LUMI_LOW, myvalue);
+      config.blob_lumi_low = myvalue;
+      cfg_save();
+      return "SUCCESS sent values to camera and SAVED as DEFAULT";
+    } else {
+      return "ERROR unexpected action value sent";
+    }
+    // end of /wcmd/camb/lumi_low
+
+    
+    
+  } else if (header.indexOf("/wcmd/camb/lumi_high") >= 0) {  
+    int action;
+    int myvalue;
+
+    // param1 holds "threshold value" value (0 - 100)
+    // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
+    // note that the isFloat() and isInteger() methods are defined in util.cpp
+    if (isInteger(param1)) {
+      myvalue = param1.toInt();
+      if (myvalue < 0) {
+        return "ERROR value must be positive (0-100)";
+      }
+      if (myvalue > 100) {
+        return "ERROR value too large, must be (0-100)";
+      }
+    } else {
+      return "ERROR only integer numbers allowed (0-100)";   // non-numeric
+    }
+    
+    // param3 holds action command (0=set, 1=save as default)
+    int myInt = param3.toInt();
+    if (myInt == 0) {
+      // index 0 indicates just SET value
+      cam_send_cmd(CAM_CMD_BLOB_SET_LUMI_HIGH, myvalue);
+      return "SUCCESS sent value to camera";
+    } else if (myInt == 1) {
+      // index 1 indicates SET values and SAVE AS DEFAULT
+      cam_send_cmd(CAM_CMD_BLOB_SET_LUMI_HIGH, myvalue);
+      config.blob_lumi_high = myvalue;
+      cfg_save();
+      return "SUCCESS sent values to camera and SAVED as DEFAULT";
+    } else {
+      return "ERROR unexpected action value sent";
+    }
+    // end of /wcmd/camb/lumi_low
 
 
   } 

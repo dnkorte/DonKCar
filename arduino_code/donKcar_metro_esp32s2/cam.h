@@ -56,6 +56,10 @@
 #define CAM_CMD_CAM_PERSPECTIVE_ON 23
 #define CAM_CMD_CAM_PERSPECTIVE_OFF 24
 #define CAM_CMD_MODE_LANE_LINES 25
+#define CAM_CMD_BLOB_SET_LUMI_LOW 26
+#define CAM_CMD_BLOB_SET_LUMI_HIGH 27
+#define CAM_CMD_HISTEQ_WANTED 28
+#define CAM_CMD_NEGATE_WANTED 29
 
 void cam_init(void);
 void cam_loop(void);

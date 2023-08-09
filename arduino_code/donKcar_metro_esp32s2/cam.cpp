@@ -439,6 +439,14 @@ void cam_preset_paremeters() {
   cam_send_cmd(CAM_CMD_PID_SET_STEERING_DIRECTION, config.pid_steering_direction);
   delay(3);    
   cam_send_cmd(CAM_CMD_CAM_SET_PERSPECTIVE_FACTOR, config.cam_perspective_factor);
+  delay(3);     
+  cam_send_cmd(CAM_CMD_BLOB_SET_LUMI_LOW, config.blob_lumi_low);
+  delay(3);    
+  cam_send_cmd(CAM_CMD_BLOB_SET_LUMI_HIGH, config.blob_lumi_high);
+  delay(3);   
+  cam_send_cmd(CAM_CMD_HISTEQ_WANTED, config.cam_histeq_wanted);
+  delay(3);   
+  cam_send_cmd(CAM_CMD_NEGATE_WANTED, config.cam_negate_wanted);
   delay(3);  
   if (config.cam_perspective_wanted == 0) {
     cam_send_cmd(CAM_CMD_CAM_PERSPECTIVE_OFF);

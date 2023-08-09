@@ -75,7 +75,7 @@ def initialize_pid():
     steering_direction = -1   # use this to reverse the steering if your car goes in the wrong direction
     steering_gain = 1.7  # calibration for your car's steering sensitivity
     steering_center = 0  # set to your car servo's center point
-    max_i_term = 30
+    max_i_term = 3
 
     kp = 0.8   # P gain of the PID
     ki = 0.0   # I gain of the PID

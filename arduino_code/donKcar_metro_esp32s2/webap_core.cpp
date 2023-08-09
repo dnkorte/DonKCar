@@ -364,7 +364,7 @@ String show_mycss(void) {
 
   
   pageBuf = pageBuf + ".btnsmall {\n";
-  pageBuf = pageBuf + "  padding: 4px 8px;\n";
+  pageBuf = pageBuf + "  padding: 4px 4px;\n";
   pageBuf = pageBuf + "  font-size: 16px;\n";
   pageBuf = pageBuf + "  text-align: center;\n";
   pageBuf = pageBuf + "  cursor: pointer;\n";

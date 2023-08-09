@@ -497,6 +497,7 @@ void mode_but_U_clicked_action() {
 }
 
 void mode_but_D_clicked_action() {
+  
   if ((curMode == MODE_MANUAL2)) { 
     switch(speed_creep_normal_boost_reverse) {
       case 'C':
@@ -518,6 +519,12 @@ void mode_but_D_clicked_action() {
         break;
     }    
   }
+
+  if ((curMode == MODE_AUTO) && (!but_Z_status)) {
+    // if auto mode but NOT MOVING then downclick re-calibrates colors
+    
+  }
+  
   if ((curMode == MODE_QUICKSETUP)) { 
     // call action function for quicksetup menu
   }

@@ -24,7 +24,7 @@ import sensor, image, pyb, math, time
 
 
 # binary view  True shows only the contrast limited view, False shows normal full range
-BINARY_VIEW = True
+BINARY_VIEW = False
 # WHITE_LINES is True for white lines on black field, is False for black lines on white field
 WHITE_LINES = True
 lowest_gray = 240
@@ -40,8 +40,8 @@ def init_line_params():
 
 
 def line_to_theta_and_rho(line):
-    if line.rho() < 0:
-        if line.theta() < 90:
+    if line.rho() < 0:              # ie line is ahead of us
+        if line.theta() < 90:       # ie line is slanting up and to the right
             return (math.sin(math.radians(line.theta())),
                 math.cos(math.radians(line.theta() + 180)) * -line.rho())
         else:
@@ -66,25 +66,58 @@ def line_to_theta_and_rho_error(line, img):
 def lines_track(img):
     global line
     global w_correction, w_left, w_right, perspective_corrector
+    global MAG_THRESHOLD, THETA_GAIN, RHO_GAIN, BINARY_VIEW, GRAYSCALE_THRESHOLD
 
-    if (WHITE_LINES):
-        img = sensor.snapshot().histeq()
-    else:
-        img = sensor.snapshot().negate().histeq()
+    #if (WHITE_LINES):
+    #    img = sensor.snapshot().histeq()
+    #else:
+    #    img = sensor.snapshot().negate().histeq()
 
     if BINARY_VIEW:
         img.binary([GRAYSCALE_THRESHOLD])
         img.erode(1)
 
 
-    line = img.get_regression([(255, 255)], robust=True)
-    # print_string = ""
+    line = img.get_regression([(200, 255)], robust=True)
+    #line = img.get_regression([(0, 255, 0 , 255, 0, 255)], robust=True)
 
     if line and (line.magnitude() >= MAG_THRESHOLD):
         # color=127 is good gray for a binary view
-        img.draw_line(line.line(), color=127, thickness=3)
+        #img.draw_line(line.line(), color=127, thickness=3)
+        img.draw_line(line.line(), color=(200, 0, 0), thickness=5)
 
         t, r = line_to_theta_and_rho_error(line, img)
         #print("actual line rho:" + str(line.rho()) + " theta:" + str(line.theta()))
         new_result = (t * THETA_GAIN) + (r * RHO_GAIN)
-        return r, t, new_result
+        #print("actual line rho:" + str(line.rho()) + " theta:" + str(line.theta())+" result:"+str(new_result))
+        print("error r:" + str(r) + " t:" + str(t)+" result:"+str(new_result))
+        #return r, t, new_result
+        return new_result
+
+
+
+
+
+def orig_line_to_theta_and_rho(line):
+    if line.rho() < 0:
+        if line.theta() < 90:
+            return (math.sin(math.radians(line.theta())),
+                math.cos(math.radians(line.theta() + 180)) * -line.rho())
+        else:
+            return (math.sin(math.radians(line.theta() - 180)),
+                math.cos(math.radians(line.theta() + 180)) * -line.rho())
+    else:
+        if line.theta() < 90:
+            if line.theta() < 45:
+                return (math.sin(math.radians(180 - line.theta())),
+                    math.cos(math.radians(line.theta())) * line.rho())
+            else:
+                return (math.sin(math.radians(line.theta() - 180)),
+                    math.cos(math.radians(line.theta())) * line.rho())
+        else:
+            return (math.sin(math.radians(180 - line.theta())),
+                math.cos(math.radians(line.theta())) * line.rho())
+
+def orig_line_to_theta_and_rho_error(line, img):
+    t, r = line_to_theta_and_rho(line)
+    return (t, r - (img.width() // 2))

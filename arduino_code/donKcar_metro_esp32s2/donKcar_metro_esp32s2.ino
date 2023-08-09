@@ -73,10 +73,10 @@ void setup() {
   wifi_init();
   drivetrain_init();    // this also initializes motors  
     
-  nextBattDispDue_E = millis() + 50;
-  nextBattDispDue_M = millis() + 2050;
-  nextBattSendDue_E = millis() + 70;
-  nextBattSendDue_M = millis() + 2070;
+  nextBattDispDue_E = millis() + 233;
+  nextBattDispDue_M = millis() + 468;
+  nextBattSendDue_E = millis() + 570;
+  nextBattSendDue_M = millis() + 1540;
   nextCam1QueryDue = millis() + 315;
   nextStatusMessageClearCheck = millis() + 263;
   nextHeartbeatCheckDue = 0;

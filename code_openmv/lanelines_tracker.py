@@ -38,8 +38,6 @@ seed_threshold=0.8
 floating_threshold=0.3
 seed_loc_y = 100
 top_of_interesting_area_x = 30
-lumi_low_threshold = 95
-lumi_high_threshold = 100
 
 # All line objects have a `theta()` method to get their rotation angle in degrees.
 # You can filter lines based on their rotation angle.
@@ -47,35 +45,29 @@ lumi_high_threshold = 100
 min_degree = 0
 max_degree = 179
 
-def init_blob_params():
+def init_lanelines_params():
     global seed_threshold, floating_threshold, seed_loc_y
     global ROIS, weight_sum
     global w_correction, w_left, w_right, perspective_corrector
     global top_of_interesting_area_x
-    global lumi_low_threshold, lumi_high_threshold
 
     # parameters for flood fill
     seed_threshold = 0.8
     floating_threshold = 0.3
     seed_loc_y = 100
     top_of_interesting_area_x = 50
-    lumi_low_threshold = 95
-    lumi_high_threshold = 100
 
     weight_sum = 0
     for r in ROIS: weight_sum += r[4] # r[4] is the roi weight.
 
 
-
-def blob_track(img):
+def lanelines_track(img):
     global color_tracking_thresholds
     global seed_threshold, floating_threshold, seed_loc_y, top_of_interesting_area_x
 
     global ROIS, weight_sum
     global w_correction, w_left, w_right, perspective_corrector
     global min_degree, max_degree
-    global lumi_low_threshold, lumi_high_threshold
-
 
 
     # seed_threshold controls the maximum allowed difference between
@@ -95,13 +87,10 @@ def blob_track(img):
             img.draw_line(l.line(), color = (255, 255, 255), thickness=5)
             # print(l)
 
-    img.draw_line( 0, top_of_interesting_area_x, 160, top_of_interesting_area_x, color = (255, 255, 255), thickness=5)
+    img.draw_line( 0, top_of_interesting_area_x, 159, top_of_interesting_area_x, color = (255, 255, 255), thickness=5)
+    #img.flood_fill( int(img.width()/2), 100, 0.8, 0.3, color=(200, 200, 0), clear_background=True)
 
-    GRAYSCALE_THRESHOLD = [lumi_low_threshold, lumi_high_threshold, -120, 120, -120, 120]
-    img.binary([GRAYSCALE_THRESHOLD])
-    img.erode(1)
-
-    img.flood_fill( int(img.width()/2), seed_loc_y, seed_threshold, floating_threshold, color=(200, 200, 0), clear_background=True)
+    #img.flood_fill( int(img.width()/2), seed_loc_y, seed_threshold, floating_threshold, color=(200, 200, 0), clear_background=True)
     centroid_sum = 0
     for r in ROIS:
         blobs = img.find_blobs([color_tracking_thresholds], roi=r[0:4], merge=True) # r[0:4] is roi tuple.
@@ -124,8 +113,8 @@ def blob_track(img):
             centroid_sum += blobs[largest_blob].cx() * r[4] # r[4] is the roi weight.
 
     center_pos = (centroid_sum / weight_sum) # Determine center of line.
-
     img.draw_circle(int(center_pos), 4, 4, color=( 0, 200, 0))
+    #img.draw_circle(int(img.width()/2), int(img.height()-4), 4, color=( 0, 200, 0), fill=True)
     img.draw_line(int(img.width()/2), int(img.height()), int(center_pos), 0, color=(200, 0, 0), thickness=3)
 
     # Convert the center_pos to a deflection angle. We're using a non-linear
@@ -207,16 +196,3 @@ def adjust_seed_loc_y(new_value):
     if (new_value < 0) or (new_value > 119):
         return
     seed_loc_y = new_value
-
-def set_lumi_low(new_value):
-    global lumi_low_threshold
-    if (new_value < 0) or (new_value > 100):
-        return
-    lumi_low_threshold = new_value
-
-def set_lumi_high(new_value):
-    global lumi_high_threshold
-    if (new_value < 0) or (new_value > 100):
-        return
-    lumi_high_threshold = new_value
-

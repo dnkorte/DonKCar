@@ -103,21 +103,27 @@
 #define BATT_M_SHUTDOWN_ON_RED false  // shutdown racer if battery goes red
 
 #define CAM_STARTUP_MODE 0      // 0 for BLOBS, 1 for LINES (structure doesn't allow char)
-#define BLOB_ROI_T_LOC 50
-#define BLOB_ROI_T_HEIGHT 19
+#define BLOB_ROI_T_LOC 30
+#define BLOB_ROI_T_HEIGHT 39
 #define BLOB_ROI_M_LOC 70
 #define BLOB_ROI_M_HEIGHT 19
 #define BLOB_ROI_B_LOC 90
 #define BLOB_ROI_B_HEIGHT 19
-#define BLOB_ROI_T_WEIGHT 0.45
-#define BLOB_ROI_M_WEIGHT 0.25
+#define BLOB_ROI_T_WEIGHT 2.0
+#define BLOB_ROI_M_WEIGHT 0.35
 #define BLOB_ROI_B_WEIGHT 0.35
 #define BLOB_FLOAT_THRESH 0.2
 #define BLOB_SEED_THRESH 0.4
 #define BLOB_SEED_LOC 100
-#define PID_KP 300
-#define PID_KI 20
-#define PID_KD 20
+#define PID_KP 8
+#define PID_KI 1
+#define PID_KD 2
+
+#define BLOB_LUMI_LOW 95
+#define BLOB_LUMI_HIGH 100
+#define CAM_HISTEQ_WANTED 0
+#define CAM_NEGATE_WANTED 0
+
 #define PID_STEERING_DIRECTION 1    // deprecated
 #define PID_STEERING_GAIN 1.0       // deprecated
 #define CAM_PERSPECTIVE_FACTOR 0.2
@@ -214,6 +220,12 @@ void loadConfiguration(const char *filename, Config &config) {
   config.pid_kp = doc["PID_KP"] | PID_KP; 
   config.pid_ki = doc["PID_KI"] | PID_KI; 
   config.pid_kd = doc["PID_KD"] | PID_KD; 
+  
+  config.blob_lumi_low = doc["BLOB_LUMI_LOW"] | BLOB_LUMI_LOW; 
+  config.blob_lumi_high = doc["BLOB_LUMI_HIGH"] | BLOB_LUMI_HIGH; 
+  config.cam_histeq_wanted = doc["CAM_HISTEQ_WANTED"] | CAM_HISTEQ_WANTED; 
+  config.cam_negate_wanted = doc["CAM_NEGATE_WANTED"] | CAM_NEGATE_WANTED;
+  
   config.pid_steering_direction = doc["PID_STEERING_DIRECTION"] | PID_STEERING_DIRECTION; 
   config.pid_steering_gain = doc["PID_STEERING_GAIN"] | PID_STEERING_GAIN;   
   config.cam_perspective_factor = doc["CAM_PERSPECTIVE_FACTOR"] | CAM_PERSPECTIVE_FACTOR;  
@@ -306,6 +318,11 @@ void saveConfiguration(const char *filename, const Config &config) {
   doc["PID_STEERING_GAIN"] = config.pid_steering_gain;     
   doc["CAM_PERSPECTIVE_FACTOR"] = config.cam_perspective_factor;    
   doc["CAM_PERSPECTIVE_WANTED"] = config.cam_perspective_wanted; 
+   
+  doc["BLOB_LUMI_LOW"] = config.blob_lumi_low;  
+  doc["BLOB_LUMI_HIGH"] = config.blob_lumi_high;  
+  doc["CAM_HISTEQ_WANTED"] = config.cam_histeq_wanted;  
+  doc["CAM_NEGATE_WANTED"] = config.cam_negate_wanted; 
 
   doc["READCONFIRM"] = config.readconfirm;  
 

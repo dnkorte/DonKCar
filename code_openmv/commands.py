@@ -8,6 +8,7 @@ import ustruct
 import ubinascii
 import communicator  # this is a "local library" and must be manually stored on OpenMV cam root folder
 import blob_tracker  # this is a "local library" and must be manually stored on OpenMV cam root folder
+import color_tracker # this is a "local library" and must be manually stored on OpenMV cam root folder
 import regression_tracker  # this is a "local library" and must be manually stored on OpenMV cam root folder
 import utility       # this is a "local library" and must be manually stored on OpenMV cam root folder
 import mypid        # this is a "local library" and must be manually stored on OpenMV cam root folder
@@ -39,6 +40,10 @@ CMD_CAM_SET_PERSPECTIVE = 22
 CMD_CAM_PERSPECTIVE_ON = 23
 CMD_CAM_PERSPECTIVE_OFF = 24
 CMD_MODE_LANE_LINES = 25
+CMD_BLOB_SET_LUMI_LOW = 26
+CMD_BLOB_SET_LUMI_HIGH = 27
+CMD_HISTEQ_WANTED = 28
+CMD_NEGATE_WANTED = 29
 
 red_led = pyb.LED(1)
 green_led = pyb.LED(2)
@@ -57,6 +62,8 @@ def process_cmd(cmd_char, sensor, img):
         set_mode('I', sensor)
     elif cmd_char == CMD_MODE_BLOBS:       # yellow LED for BLOBS mode
         set_mode('B', sensor)
+        color_tracker.preset_color_thresholds(sensor, img)      # temporary - should actually be for mode 'C' and be a commanded function from main robot
+        #print("setting blob mode")
     elif cmd_char == CMD_MODE_REGRESSION_LINE:       # green LED for REGRESSION LINE (1 line) mode
         set_mode('R', sensor)
     elif cmd_char == CMD_MODE_LANE_LINES:       # red LED for LANE LINES mode
@@ -73,23 +80,23 @@ def process_cmd(cmd_char, sensor, img):
     elif cmd_char == CMD_DRIVE_OFF:
         set_send_driving_info(False)
     elif cmd_char == CMD_BLOB_SET_SEED_LOC:
-        blob_tracker.adjust_seed_loc_y(communicator.get_int_param1())
+        color_tracker.adjust_seed_loc_y(communicator.get_int_param1())
     elif cmd_char == CMD_BLOB_SET_FLOATING_THRESH:
-        blob_tracker.adjust_floating_threshold(communicator.get_float_param())
+        color_tracker.adjust_floating_threshold(communicator.get_float_param())
     elif cmd_char == CMD_BLOB_SET_SEED_THRESH:
-        blob_tracker.adjust_seed_threshold(communicator.get_float_param())
+        color_tracker.adjust_seed_threshold(communicator.get_float_param())
     elif cmd_char == CMD_BLOB_ROI_WEIGHT_T:
-        blob_tracker.adjust_roi_weight(0, communicator.get_float_param())
+        color_tracker.adjust_roi_weight(0, communicator.get_float_param())
     elif cmd_char == CMD_BLOB_ROI_WEIGHT_M:
-        blob_tracker.adjust_roi_weight(1, communicator.get_float_param())
+        color_tracker.adjust_roi_weight(1, communicator.get_float_param())
     elif cmd_char == CMD_BLOB_ROI_WEIGHT_B:
-        blob_tracker.adjust_roi_weight(2, communicator.get_float_param())
+        color_tracker.adjust_roi_weight(2, communicator.get_float_param())
     elif cmd_char == CMD_BLOB_ROI_POSITION_T:
-        blob_tracker.adjust_roi_position(0, communicator.get_int_param1(), communicator.get_int_param2())
+        color_tracker.adjust_roi_position(0, communicator.get_int_param1(), communicator.get_int_param2())
     elif cmd_char == CMD_BLOB_ROI_POSITION_M:
-        blob_tracker.adjust_roi_position(1, communicator.get_int_param1(), communicator.get_int_param2())
+        color_tracker.adjust_roi_position(1, communicator.get_int_param1(), communicator.get_int_param2())
     elif cmd_char == CMD_BLOB_ROI_POSITION_B:
-        blob_tracker.adjust_roi_position(2, communicator.get_int_param1(), communicator.get_int_param2())
+        color_tracker.adjust_roi_position(2, communicator.get_int_param1(), communicator.get_int_param2())
     elif cmd_char == CMD_PID_SET_KP:
         mypid.set_pid_kp(communicator.get_float_param())
     elif cmd_char == CMD_PID_SET_KI:
@@ -106,6 +113,15 @@ def process_cmd(cmd_char, sensor, img):
         utility.set_perspective_correction(True)
     elif cmd_char == CMD_CAM_PERSPECTIVE_OFF:
         utility.set_perspective_correction(False)
+    elif cmd_char == CMD_HISTEQ_WANTED:
+        utility.set_histeq_wanted(communicator.get_int_param1())
+    elif cmd_char == CMD_NEGATE_WANTED:
+        utility.set_negate_wanted(communicator.get_int_param1())
+    elif cmd_char == CMD_BLOB_SET_LUMI_LOW:
+        color_tracker.set_lumi_low(communicator.get_int_param1())
+    elif cmd_char == CMD_BLOB_SET_LUMI_LOW:
+        color_tracker.set_lumi_high(communicator.get_int_param1())
+
 
 # modes may be 'I' (idle), 'B' (blobs), 'L' (lines), 'G' (grayscale)
 def set_mode(newmode, sensor):

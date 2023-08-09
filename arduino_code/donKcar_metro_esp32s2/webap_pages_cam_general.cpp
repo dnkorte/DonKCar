@@ -48,7 +48,7 @@ bool webap_build_cam_general(String header) {
   /*
    * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
    * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
-   * page cam_blobs.html
+   * page cam_general.html
    * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
    * PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
    */
@@ -67,7 +67,7 @@ bool webap_build_cam_general(String header) {
         pageBuf = pageBuf + "<tr>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnGold\" onClick=\"set_blobs();\">Blobs</button></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnGreen\" onClick=\"set_regression();\">1 Line</button></td>\n";
-          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"set_lane_lines();\">Lane Lines</button></td>\n";
+          //pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"set_lane_lines();\">Lane Lines</button></td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnBlue\" onClick=\"set_grayscale();\"> Grayscale</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
       pageBuf = pageBuf + "</table>\n";
@@ -93,17 +93,67 @@ bool webap_build_cam_general(String header) {
             }
             pageBuf = pageBuf + ">1-Line (Regression)</option>\n";    
             
-            pageBuf = pageBuf + "<option value=2"; 
-            if (config.cam_startup_mode == 2) {
-              pageBuf = pageBuf + " selected";
-            }
-            pageBuf = pageBuf + ">Lane Lines Tracking</option>\n";    
+            //pageBuf = pageBuf + "<option value=2"; 
+            //if (config.cam_startup_mode == 2) {
+            //  pageBuf = pageBuf + " selected";
+            //}
+            //pageBuf = pageBuf + ">Lane Lines Tracking</option>\n";    
                    
           pageBuf = pageBuf + "</select>\n</td>\n";                  
 
           pageBuf = pageBuf + "<td class='matrix'>&nbsp;</td>\n";
           pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_startup_mode();\">Save</button></td>\n";
         pageBuf = pageBuf + "</tr>\n";
+
+
+        
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix ltblue' colspan='5'>Image Filtering</td>\n";
+        pageBuf = pageBuf + "</tr>\n";
+        
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Want HistEq?</td>\n";
+         
+          pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_histeq_wanted' id='inp_histeq_wanted'>\n"; 
+            pageBuf = pageBuf + "<option value=0"; 
+            if (!config.cam_histeq_wanted == 0) {
+              pageBuf = pageBuf + " selected";
+            }
+            pageBuf = pageBuf + ">No</option>\n"; 
+            
+            pageBuf = pageBuf + "<option value=1"; 
+            if (config.cam_histeq_wanted == 1) {
+              pageBuf = pageBuf + " selected";
+            }
+            pageBuf = pageBuf + ">Yes</option>\n";           
+          pageBuf = pageBuf + "</select>\n</td>\n";                  
+           
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnBlue\" onClick=\"set_histeq_wanted();\">Set</button></td>\n"; 
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_histeq_wanted();\">Save</button></td>\n";
+        pageBuf = pageBuf + "</tr>\n";
+        
+        pageBuf = pageBuf + "<tr>\n";
+          pageBuf = pageBuf + "<td class='matrix left'>Want Negate?</td>\n";
+         
+          pageBuf = pageBuf + "<td class='matrix'>\n<select name='sel_negate_wanted' id='inp_negate_wanted'>\n"; 
+            pageBuf = pageBuf + "<option value=0"; 
+            if (!config.cam_negate_wanted == 0) {
+              pageBuf = pageBuf + " selected";
+            }
+            pageBuf = pageBuf + ">No</option>\n"; 
+            
+            pageBuf = pageBuf + "<option value=1"; 
+            if (config.cam_negate_wanted == 1) {
+              pageBuf = pageBuf + " selected";
+            }
+            pageBuf = pageBuf + ">Yes</option>\n";           
+          pageBuf = pageBuf + "</select>\n</td>\n";                  
+          
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnBlue\" onClick=\"set_negate_wanted();\">Set</button></td>\n"; 
+          pageBuf = pageBuf + "<td class='matrix'><button class=\"btnsmall btnRed\" onClick=\"save_negate_wanted();\">Save</button></td>\n";
+        pageBuf = pageBuf + "</tr>\n";
+
+
 
         
         
@@ -185,6 +235,18 @@ bool webap_build_cam_general(String header) {
       pageBuf = pageBuf + "  myIndex = document.getElementById('inp_perspective_wanted').selectedIndex;\n";
       pageBuf = pageBuf + "  Http.open('GET', urlBase+'camg/perspective_wanted?value=' + myIndex + ':XX:0');\n";
       pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";  
+         
+      pageBuf = pageBuf + "function set_histeq_wanted() {\n";   
+      pageBuf = pageBuf + "  myIndex = document.getElementById('inp_histeq_wanted').selectedIndex;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camg/histeq_wanted?value=' + myIndex + ':XX:0');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";  
+         
+      pageBuf = pageBuf + "function set_negate_wanted() {\n";   
+      pageBuf = pageBuf + "  myIndex = document.getElementById('inp_negate_wanted').selectedIndex;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camg/negate_wanted?value=' + myIndex + ':XX:0');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
       pageBuf = pageBuf + "  }\n";   
          
       pageBuf = pageBuf + "function save_perspective_factor() {\n"; 
@@ -196,6 +258,18 @@ bool webap_build_cam_general(String header) {
       pageBuf = pageBuf + "function save_perspective_wanted() {\n";   
       pageBuf = pageBuf + "  myIndex = document.getElementById('inp_perspective_wanted').selectedIndex;\n";
       pageBuf = pageBuf + "  Http.open('GET', urlBase+'camg/perspective_wanted?value=' + myIndex + ':XX:1');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";  
+         
+      pageBuf = pageBuf + "function save_histeq_wanted() {\n";   
+      pageBuf = pageBuf + "  myIndex = document.getElementById('inp_histeq_wanted').selectedIndex;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camg/histeq_wanted?value=' + myIndex + ':XX:1');\n";
+      pageBuf = pageBuf + "  Http.send();\n";
+      pageBuf = pageBuf + "  }\n";  
+         
+      pageBuf = pageBuf + "function save_negate_wanted() {\n";   
+      pageBuf = pageBuf + "  myIndex = document.getElementById('inp_negate_wanted').selectedIndex;\n";
+      pageBuf = pageBuf + "  Http.open('GET', urlBase+'camg/negate_wanted?value=' + myIndex + ':XX:1');\n";
       pageBuf = pageBuf + "  Http.send();\n";
       pageBuf = pageBuf + "  }\n";  
       
@@ -360,7 +434,119 @@ String webap_process_API_cam_general(String header) {
     } else {
       return "ERROR unexpected action value sent";
     }
-    // end of /wcmd/camp/perspective_wanted
+    // end of /wcmd/camg/perspective_wanted
+
+    
+    
+} else if (header.indexOf("/wcmd/camg/histeq_wanted") >= 0) {
+    int action;
+    int myIndex;
+    
+    String AllThreeParams, param1, param2, param3;
+    int delimiter_1, delimiter_2;
+    int locOfQuestion, locOfTrailingSpace;
+      
+    locOfQuestion = header.indexOf('?');
+    locOfTrailingSpace = header.indexOf(' ', locOfQuestion);
+    //myValue = header.substring(locOfQuestion+7, locOfTrailingSpace); 
+  
+    // we assume that the parameter "value" holds 3 number values delimited by ":" characters
+    // they represent 3 arguments to this page and start after   ?value=
+    AllThreeParams = header.substring(locOfQuestion+7);
+    delimiter_1 = AllThreeParams.indexOf(":");
+    delimiter_2 = AllThreeParams.indexOf(":", delimiter_1 +1);
+    param1 = AllThreeParams.substring(0, delimiter_1);
+    param2 = AllThreeParams.substring(delimiter_1 + 1, delimiter_2);
+    param3 = AllThreeParams.substring(delimiter_2 + 1);
+    param3.substring(0,1);
+
+    // param1 holds selector index; 0 representing NO, 1 representing YES
+    // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
+    // note that the isFloat() and isInteger() methods are defined in util.cpp
+    if (isInteger(param1)) {
+      myIndex = param1.toInt();
+      if (myIndex < 0) {
+        return "ERROR invalid selection";
+      }
+      if (myIndex > 1) {
+        return "ERROR invalid selection";
+      }
+    } else {
+      return "ERROR invalid index";   // non-numeric
+    }   
+    
+    // param3 holds action command (0=set, 1=save as default)
+    int myInt = param3.toInt();
+    if (myInt == 0) {
+      // index 0 indicates just SET value
+      cam_send_cmd(CAM_CMD_HISTEQ_WANTED, myIndex);
+      return "SUCCESS sent value to camera";
+    } else if (myInt == 1) {
+      // index 1 indicates SET values and SAVE AS DEFAULT
+      cam_send_cmd(CAM_CMD_HISTEQ_WANTED, myIndex);
+      config.cam_histeq_wanted = myIndex;
+      cfg_save();
+      return "SUCCESS sent values to camera and SAVED as DEFAULT";
+    } else {
+      return "ERROR unexpected action value sent";
+    }
+    // end of /wcmd/camg/histeq_wanted
+
+    
+    
+} else if (header.indexOf("/wcmd/camg/negate_wanted") >= 0) {
+    int action;
+    int myIndex;
+    
+    String AllThreeParams, param1, param2, param3;
+    int delimiter_1, delimiter_2;
+    int locOfQuestion, locOfTrailingSpace;
+      
+    locOfQuestion = header.indexOf('?');
+    locOfTrailingSpace = header.indexOf(' ', locOfQuestion);
+    //myValue = header.substring(locOfQuestion+7, locOfTrailingSpace); 
+  
+    // we assume that the parameter "value" holds 3 number values delimited by ":" characters
+    // they represent 3 arguments to this page and start after   ?value=
+    AllThreeParams = header.substring(locOfQuestion+7);
+    delimiter_1 = AllThreeParams.indexOf(":");
+    delimiter_2 = AllThreeParams.indexOf(":", delimiter_1 +1);
+    param1 = AllThreeParams.substring(0, delimiter_1);
+    param2 = AllThreeParams.substring(delimiter_1 + 1, delimiter_2);
+    param3 = AllThreeParams.substring(delimiter_2 + 1);
+    param3.substring(0,1);
+
+    // param1 holds selector index; 0 representing NO, 1 representing YES
+    // note could be isFloat(String), String.toFloat   OR  isInteger(String), String.toInt
+    // note that the isFloat() and isInteger() methods are defined in util.cpp
+    if (isInteger(param1)) {
+      myIndex = param1.toInt();
+      if (myIndex < 0) {
+        return "ERROR invalid selection";
+      }
+      if (myIndex > 1) {
+        return "ERROR invalid selection";
+      }
+    } else {
+      return "ERROR invalid index";   // non-numeric
+    }   
+    
+    // param3 holds action command (0=set, 1=save as default)
+    int myInt = param3.toInt();
+    if (myInt == 0) {
+      // index 0 indicates just SET value
+      cam_send_cmd(CAM_CMD_NEGATE_WANTED, myIndex);
+      return "SUCCESS sent value to camera";
+    } else if (myInt == 1) {
+      // index 1 indicates SET values and SAVE AS DEFAULT
+      cam_send_cmd(CAM_CMD_NEGATE_WANTED, myIndex);
+      config.cam_negate_wanted = myIndex;
+      cfg_save();
+      return "SUCCESS sent values to camera and SAVED as DEFAULT";
+    } else {
+      return "ERROR unexpected action value sent";
+    }
+    // end of /wcmd/camg/negate_wanted
 
     
   
