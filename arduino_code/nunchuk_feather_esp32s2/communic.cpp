@@ -70,8 +70,8 @@ uint8_t deviceAddresses[][6] = {
 };
 
 typedef struct {
-  char msgtype;   // 'C', 'Z', 'X', 'Y', 'V', 'x', 'y', '0', '1', '2'
-  int  intdata;
+  char msgtype;   // 'C', 'Z', 'X', 'Y', 'V', 'H', '0', '1', '2'
+  int  intdata;   // note this is a 2-byte (16 bit) integer
 } MessageCtoR;    // this type (structure) holds a message that goes from Controller to Robot
 
 typedef struct {
@@ -125,7 +125,8 @@ void communic_init() {
 
 /* 
  *  sends a message to racer, mstType is:
- *  'C' (button C), 'Z' (button Z), 'B' (button B), 'X' (joy X), 'Y' (joy Y), 'V' (batt volts)', "h" (heartbeat)
+ *  'C' (button C), 'Z' (button Z), 'X' (joy X), 'Y' (joy Y), 'V' (batt volts)', "H" (heartbeat)
+ *  '0' (button 0 on Feather), '1' (button 1 on Feather), '2' (button 2 on Feather)
  */
 void communic_send_message(char msgType, int intData) {
   

@@ -63,7 +63,7 @@ The autonomous driving functions using the OpenMV camera are still under develop
 ## Remote Controller Using Nunchuk
 The user controls the racer / robot using a Wii Nunchuk control unit that plugs into a belt-clipped or lanyard-mounted control box that includes a 240 x 135 TFT.  An [Adafruit Reverse TFT Feather](https://www.adafruit.com/product/5345) uses ESP-NOW protocol to communicate bi-directionally with the racer / robot.  It sends joystick and button-press commands to the racer, and receives messages back from racer for display on the TFT.  It is a very quick and responsive protocol with good range (at least 100 feet in my yard, but not tested any farther). The simple messaging protocol could be easily used to control any robot / racer configuration.  The control box is powered by a small LiPo battery and may be worn using a belt-clip or a [neck lanyard](https://www.amazon.com/Bestom-Breakaway-Lanyards-Lanyards-no-Twist/dp/B09LQJJHFQ) (of the type typically used for ID badges).  
 
-Some photos of the controller box are shown below, or a more complete [photo album is available here](https://photos.app.goo.gl/xJtTXaHJivE7bsBp9), and [short video of unit in operation is linked here](https://photos.app.goo.gl/UN85hcr63vpKxPkb9).
+Some photos of the controller box are shown below, or a more complete [photo album is available here](https://photos.app.goo.gl/xJtTXaHJivE7bsBp9), and [short video of unit in operation is linked here](https://photos.app.goo.gl/UN85hcr63vpKxPkb9).  Additionally, a document describing the communication protocol is available [here](https://github.com/dnkorte/DonKCar/blob/main/Protocol_for_Nunchuk_Controller_for_Racer_Robot.pdf)
 
 <table><tr>
 	<td>
@@ -81,3 +81,5 @@ Some photos of the controller box are shown below, or a more complete [photo alb
 	</td>
 
 </tr></table>
+
+Protocol_for_Nunchuk_Controller_for_Racer_Robot.pdf
