@@ -38,6 +38,7 @@ void communic_init();
 String communic_connected_device();
 void communic_send_message(char msgType, int intData);
 void communic_display_signal_strength();
+String communic_change_connected_device();
 
 #define MSG_NULL_FLOAT 0.00
 #define MSG_NULL_INT 0

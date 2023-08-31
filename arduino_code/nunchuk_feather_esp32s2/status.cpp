@@ -215,8 +215,8 @@ void status_main_structure() {
     //screen_writeText_colrow(COL_M_BATT_LAB_M, ROW_M_BATT2, 2, "M:", ccToRGB('C'));
     //screen_writeText_colrow(COL_M_BATT_LAB_C, ROW_M_BATT2, 2, "C:", ccToRGB('C'));
     
-    screen_writeText_colrow(COL_M_NUN_X_LAB, ROW_M_NUNCHUK_INFO, 2, "Y:", ccToRGB('C'));
-    screen_writeText_colrow(COL_M_NUN_Y_LAB, ROW_M_NUNCHUK_INFO, 2, "X:", ccToRGB('C'));
+    //screen_writeText_colrow(COL_M_NUN_X_LAB, ROW_M_NUNCHUK_INFO, 2, "y", ccToRGB('C'));
+    //screen_writeText_colrow(COL_M_NUN_Y_LAB, ROW_M_NUNCHUK_INFO, 2, "x", ccToRGB('C'));
     screen_show();
   }
 }

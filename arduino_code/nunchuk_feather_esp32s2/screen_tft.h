@@ -60,7 +60,6 @@
 
 // screen locations for text
 #define ROW_M_BATT1 0
-//#define ROW_M_BATT2 1
 #define ROW_M_NUNCHUK_INFO 1
 #define ROW_M_STAT1 2
 #define ROW_M_STAT2 3
@@ -70,20 +69,24 @@
 #define COL_M_BATT_LAB_E 0
 #define COL_M_BATT_LAB_M 7
 #define COL_M_BATT_LAB_C 14
-#define COL_M_NUN_X_LAB 0
-#define COL_M_NUN_Y_LAB 7
-#define COL_M_NUN_BTNS_LAB  15
+//#define COL_M_NUN_X_LAB 0
+//#define COL_M_NUN_Y_LAB 7
+//#define COL_M_NUN_BTNS_LAB  15
 
 
-#define COL_LABEL_Y 0
-#define COL_VALUE_Y 2
-#define COL_LABEL_X 7
-#define COL_VALUE_X 9
-#define COL_BTN_C 14
-#define COL_BTN_Z 15
-#define COL_BTN_0 13
-#define COL_BTN_1 13
-#define COL_BTN_2 13
+//#define COL_LABEL_Y 0
+//#define COL_VALUE_Y 2
+//#define COL_LABEL_X 7
+//#define COL_VALUE_X 9
+
+#define COL_ROBOTNAME 0
+#define COL_CMD_INFO 9
+
+//#define COL_BTN_C 14
+//#define COL_BTN_Z 15
+//#define COL_BTN_0 13
+//#define COL_BTN_1 13
+//#define COL_BTN_2 13
 
 #define COL_COMMSTAT 17
 #define WIDTH_COMMSTAT 4
@@ -131,6 +134,7 @@ void screen_init();
 void screen_show();
 void screen_clear();
 void screen_clearLine(int rowindex);
+void screen_clearField(int col, int rowindex, int nc);
 void screen_dot_blink(int ulx, int uly, int color );
 int screen_get_pixel_x(int col);
 int screen_get_pixel_y(int rowindex);

@@ -72,6 +72,12 @@ void screen_writeString_raw(int x, int y, int nc, String myString, int color);
  * *************************************************
 */
 
+
+/*
+ * *************************************************
+ * basic utility functions
+ * *************************************************
+ */
 void screen_init() {
   
   // turn on backlite
@@ -108,7 +114,23 @@ void screen_clearLine(int rowindex) {
   screen_clearLine_raw(row_tops[myrow]);
 }
 
+void screen_clearField(int col, int rowindex, int nc) {
+  int myrow = constrain(rowindex, 0, (NUM_ROWS-1)); 
+  int mywidth = nc * CELL_WIDTH;
+  int myX = col * CELL_WIDTH; 
+  int myY = row_tops[myrow];  
+  display.fillRect(myX, myY, mywidth, CELL_HEIGHT, COLOR_BACKGROUND);
+}
+
+
+/*
+ * *************************************************
+ * write text from char array
+ * *************************************************
+ */
+
 // @param nc  width of field as number of characters
+
 void screen_writeText_colrow(int col, int rowindex, int nc, char myText[], int color) {
   int myrow = constrain(rowindex, 0, (NUM_ROWS-1));
   int mywidth = nc * CELL_WIDTH;
@@ -116,12 +138,34 @@ void screen_writeText_colrow(int col, int rowindex, int nc, char myText[], int c
   screen_writeText_raw(myX, row_tops[myrow], mywidth, myText, color);
 }
 
+
+
+// this displays text (array of chars),  horizontally centered
+// @param int y     is y index of top of chars (0=top of screen, SCREEN_HEIGHT is bottom of screen)
+
+void screen_centerText(int rowindex, char myText[], int color) {
+  int myrow = constrain(rowindex, 0, (NUM_ROWS-1));  
+  screen_centerText_raw(row_tops[myrow], myText, color);
+}
+
+
 // @param nc  width of field as number of characters
+
 void screen_writeText_xrow(int x, int rowindex, int nc, char myText[], int color) {
   int myrow = constrain(rowindex, 0, (NUM_ROWS-1));
   int mywidth = nc * CELL_WIDTH; 
   screen_writeText_raw(x, row_tops[myrow], mywidth, myText, color);
 }
+
+
+
+
+/*
+ * *************************************************
+ * write text from Arduino String
+ * *************************************************
+ */
+
 
 void screen_writeString_colrow(int col, int rowindex, int nc, String myString, int color) {
   char myText[81];
@@ -129,26 +173,31 @@ void screen_writeString_colrow(int col, int rowindex, int nc, String myString, i
   screen_writeText_colrow(col, rowindex, nc, myText, color);
 }
 
+
+// this displays text (String),  horizontally centered
+// @param int y     is y index of top of chars (0=top of screen, SCREEN_HEIGHT is bottom of screen)
+
+void screen_centerString(int rowindex, String myString, int color) {
+  char myText[81];
+  myString.toCharArray(myText, 80); 
+  screen_centerText(rowindex, myText, color);
+}
+
+
 void screen_writeString_xrow(int x, int rowindex, int nc, String myString, int color) {
   char myText[81];
   myString.toCharArray(myText, 80); 
   screen_writeText_xrow(x, rowindex, nc, myText, color);
 }
 
-// this displays text (array of chars),  horizontally centered
-// @param int y     is y index of top of chars (0=top of screen, SCREEN_HEIGHT is bottom of screen)
-void screen_centerText(int rowindex, char myText[], int color) {
-  int myrow = constrain(rowindex, 0, (NUM_ROWS-1));  
-  screen_centerText_raw(row_tops[myrow], myText, color);
-}
 
-// this displays text (String),  horizontally centered
-// @param int y     is y index of top of chars (0=top of screen, SCREEN_HEIGHT is bottom of screen)
-void screen_centerString(int rowindex, String myString, int color) {
-  char myText[81];
-  myString.toCharArray(myText, 80); 
-  screen_centerText(rowindex, myText, color);
-}
+
+/*
+ * *************************************************
+ * public low level functions
+ * *************************************************
+ */
+
 
 void screen_dot_blink(int ulx, int uly, int color) {
   // do nothing 
@@ -226,6 +275,7 @@ void screen_clearLine_raw(int y) {
 // this displays text (array of chars), horizontally centered
 // @param int y     is y index of top of chars (0=top of screen, SCREEN_HEIGHT is bottom of screen)
 // @param int scale is scale of text (1, 2, 3, ...)
+
 void screen_centerText_raw(int y, char myText[], int color) { 
   screen_clearLine_raw(y);
   display.setTextSize(DEFAULT_SCALE);
@@ -243,6 +293,7 @@ void screen_centerText_raw(int y, char myText[], int color) {
 // @param  x, y   coordinates of top left in pixels
 // @param  nc     width of field as number of characters
 // note that the height of the cleared block is enough to contain 1 row of text at specified scale
+
 void screen_writeText_raw(int x, int y,  int width_px, char myText[], int color) {
   int mywidth = width_px; 
   display.fillRect(x, y, mywidth, CELL_HEIGHT, COLOR_BACKGROUND);

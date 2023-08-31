@@ -43,7 +43,6 @@
 #define MSG_STAT2     3
 #define MSG_STAT3     4
 #define MSG_MENUITEM  5
-#define MSG_STAT_CLR  6
 
 /*
  * info about ESP-NOW communication
@@ -58,16 +57,18 @@
 */
 
 // available target device names
+#define NUM_AVAIL_DEVICES 2
 String deviceNames[] = {
-  "racer3", "notused", "notused"
+  "racer3", "racer2", "notused"
 };
 
 // MAC Address of responder - this is for (red) racer3
 uint8_t deviceAddresses[][6] = { 
   {0x7c, 0xdf, 0xa1, 0x44, 0x41, 0x76},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00}, 
+  {0x7c, 0xdf, 0xa1, 0x44, 0x9b, 0x7c}, 
   {0x00, 0x00, 0x00, 0x00, 0x00, 0x00} 
 };
+
 
 typedef struct {
   char msgtype;   // 'C', 'Z', 'X', 'Y', 'V', 'H', '0', '1', '2'
@@ -146,6 +147,40 @@ void communic_send_message(char msgType, int intData) {
 
 String communic_connected_device() {
   return deviceNames[selectedDeviceIndex];
+}
+
+String communic_change_connected_device() {
+  selectedDeviceIndex++;
+  if (selectedDeviceIndex >= NUM_AVAIL_DEVICES) {
+     selectedDeviceIndex = 0;
+  }
+
+  // turn off ESP-NOW 
+  // (because we can only have 7 devices, we turn it off then on again so never more than 1)
+  esp_now_deinit();
+  
+  // Re-initilize ESP-NOW
+  if (esp_now_init() != ESP_OK) {
+    return "FAILED DEVICE";
+  }
+  
+  // Register the send callback
+  esp_now_register_send_cb(OnDataSent);
+  
+  // Register callback function for receiving
+  esp_now_register_recv_cb(OnDataRecv);
+  
+  // Register peer
+  memcpy(peerInfo.peer_addr, deviceAddresses[selectedDeviceIndex], 6);
+  peerInfo.channel = 0;  
+  peerInfo.encrypt = false;
+  
+  // Add peer        
+  if (esp_now_add_peer(&peerInfo) != ESP_OK){
+    return "FAILED DEVICE";
+  } 
+
+  return communic_connected_device();  
 }
 
 /*
